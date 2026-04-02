@@ -76,6 +76,39 @@ app.get("/api/preview-message", (req, res) => {
   res.json({ message: buildWhatsAppMessage(db.groupA, db.groupB, db.lastGame || "Latest") });
 });
 
+// ── POST /api/admin-update ────────────────────────────────────
+// Admin manually enters member totals from Google scorecard
+// Body: { gameLabel: "Game 7 — 3 Apr", groupA: {Rohit:310,...}, groupB: {...} }
+app.post("/api/admin-update", (req, res) => {
+  const { gameLabel, groupA: newA, groupB: newB } = req.body || {};
+  if (!newA && !newB) return res.json({ status:"error", message:"No data provided" });
+
+  const db = loadDB();
+
+  if (newA) {
+    for (const member of db.groupA) {
+      if (newA[member.member] !== undefined) {
+        member.totalRuns = parseInt(newA[member.member]);
+      }
+    }
+    db.groupA.sort((a,b) => b.totalRuns - a.totalRuns);
+  }
+  if (newB) {
+    for (const member of db.groupB) {
+      if (newB[member.member] !== undefined) {
+        member.totalRuns = parseInt(newB[member.member]);
+      }
+    }
+    db.groupB.sort((a,b) => b.totalRuns - a.totalRuns);
+  }
+
+  db.lastGame = gameLabel || db.lastGame;
+  db.lastUpdated = new Date().toISOString();
+  saveDB(db);
+  console.log(`[Admin] Manual update: ${db.lastGame}`);
+  res.json({ status:"saved", lastGame: db.lastGame, groupA: db.groupA, groupB: db.groupB });
+});
+
 // ── Core update ───────────────────────────────────────────────
 async function runUpdate(label, autoSend = true) {
   console.log(`\n[Update] ${label}`);
