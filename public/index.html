@@ -7,168 +7,189 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  :root{--bg:#0a0f1a;--surface:#111827;--card:#1a2235;--border:rgba(255,255,255,0.08);--text:#f0f4ff;--muted:#8494a9;--accent:#3b82f6;--green:#22c55e;--ipl-blue:#1e3a8a;--ipl-gold:#fbbf24}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-  header{background:linear-gradient(135deg,#0a1628 0%,#1e3a8a 50%,#0a1628 100%);border-bottom:1px solid var(--border);padding:0 1rem;position:sticky;top:0;z-index:100}
-  .hi{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
-  .logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--ipl-gold)}
-  .logo-sub{font-size:11px;color:var(--muted)}
-  .lu{font-size:11px;color:var(--muted);text-align:right;line-height:1.5}
-  main{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
-  .sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
-  .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
-  .sl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-  .sv{font-family:'Bebas Neue',sans-serif;font-size:28px}.sv.gold{color:var(--ipl-gold)}.sv.green{color:var(--green)}.sv.blue{color:#60a5fa}
-  .acts{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
-  .btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-decoration:none;white-space:nowrap}
-  .bp{background:var(--accent);color:white}.bp:hover{background:#2563eb}
-  .bg{background:#16a34a;color:white}.bg:hover{background:#15803d}
-  .bwa{background:#25d366;color:white}.bwa:hover{background:#1ebe5d}
-  .bo{background:#d97706;color:white}.bo:hover{background:#b45309}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-  /* Auto-send toggle button */
-  .btoggle{padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .15s}
-  .btoggle.on{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3)}
-  .btoggle.off{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
-  .spin{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite}
-  @keyframes sp{to{transform:rotate(360deg)}}
-  .tabs{display:flex;gap:2px;margin-bottom:1.5rem;background:var(--card);border-radius:10px;padding:4px}
-  .tab{flex:1;padding:8px;font-size:13px;font-weight:500;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s;font-family:inherit}
-  .tab.active{background:var(--accent);color:white}
-  .gs{display:none}.gs.active{display:block}
-  .lb{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem}
-  .lbh{background:var(--ipl-blue);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:10px 16px;font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.08em}
-  .lbr{background:var(--surface);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:12px 16px;align-items:center;border-top:1px solid var(--border)}
-  .lbr:hover{background:var(--card)}
-  .rb{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
-  .r1{background:rgba(168,208,245,.15);color:#a8d0f5}
-  .r2{background:rgba(152,220,190,.15);color:#98dcc0}
-  .r3{background:rgba(220,180,245,.15);color:#dcb4f5}
-  .rn{background:rgba(255,255,255,.05);color:var(--muted)}
-  .mn{font-weight:500;font-size:15px}
-  .rv{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--ipl-gold)}
-  .pv{text-align:right;font-size:13px;font-weight:600;color:var(--green)}
-  /* Image tab */
-  .img-tip{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1rem}
-  .waw{background:#ddd6cc;border-radius:14px;padding:20px;display:flex;justify-content:center;margin-bottom:1rem;min-height:80px;align-items:center}
-  .ia{display:flex;gap:8px;flex-wrap:wrap}
-  /* Auto-send info box */
-  .auto-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#93c5fd;line-height:1.7}
-  .auto-box strong{color:#60a5fa}
-  .es{text-align:center;padding:3rem 1rem;background:var(--card);border-radius:14px;border:1px dashed var(--border);margin-bottom:1.5rem}
-  .ei{font-size:48px;margin-bottom:1rem}.et{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);letter-spacing:1px}.es2{font-size:14px;color:var(--muted);margin-top:8px}
-  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a2235;border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:280px}
-  .toast.show{transform:translateY(0);opacity:1}
+:root{--bg:#0a0f1a;--sur:#111827;--card:#1a2235;--bdr:rgba(255,255,255,0.08);--txt:#f0f4ff;--mut:#8494a9;--acc:#3b82f6;--grn:#22c55e;--iblue:#1e3a8a;--igold:#fbbf24}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+header{background:linear-gradient(135deg,#0a1628,#1e3a8a 50%,#0a1628);border-bottom:1px solid var(--bdr);padding:0 1rem;position:sticky;top:0;z-index:100}
+.hi{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.lt{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--igold)}
+.ls{font-size:11px;color:var(--mut)}
+#lu{font-size:11px;color:var(--mut);text-align:right;line-height:1.5}
+main{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
+.sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;text-align:center}
+.sl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.sv{font-family:'Bebas Neue',sans-serif;font-size:28px}
+.sv.g{color:var(--igold)}.sv.n{color:var(--grn)}.sv.b{color:#60a5fa}
+.acts{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+.btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-decoration:none;white-space:nowrap}
+.bp{background:var(--acc);color:white}.bp:hover{background:#2563eb}
+.bg{background:#16a34a;color:white}.bg:hover{background:#15803d}
+.bwa{background:#25d366;color:white}.bwa:hover{background:#1ebe5d}
+.bo{background:#d97706;color:white}.bo:hover{background:#b45309}
+.bpu{background:#7c3aed;color:white}.bpu:hover{background:#6d28d9}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btog{padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--bdr);cursor:pointer;font-family:inherit;transition:all .15s}
+.btog.on{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3)}
+.btog.off{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+.spin{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.tabs{display:flex;gap:2px;margin-bottom:1.5rem;background:var(--card);border-radius:10px;padding:4px;flex-wrap:wrap}
+.tab{flex:1;padding:8px 6px;font-size:12px;font-weight:500;border:none;background:none;color:var(--mut);cursor:pointer;border-radius:7px;transition:all .15s;font-family:inherit;min-width:60px;text-align:center}
+.tab.active{background:var(--acc);color:white}
+.gs{display:none}.gs.active{display:block}
+.lb{border-radius:14px;overflow:hidden;border:1px solid var(--bdr);margin-bottom:1.5rem}
+.lbh{background:var(--iblue);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:10px 16px;font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.08em}
+.lbr{background:var(--sur);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:12px 16px;align-items:center;border-top:1px solid var(--bdr)}
+.lbr:hover{background:var(--card)}
+.rb{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+.rb1{background:rgba(168,208,245,.15);color:#a8d0f5}
+.rb2{background:rgba(152,220,190,.15);color:#98dcc0}
+.rb3{background:rgba(220,180,245,.15);color:#dcb4f5}
+.rbn{background:rgba(255,255,255,.05);color:var(--mut)}
+.mn{font-weight:500;font-size:15px}
+.rv{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--igold)}
+.pv{text-align:right;font-size:13px;font-weight:600;color:var(--grn)}
 
-  /* ── SHARE CARD (off-screen, html2canvas capture) ── */
-  #share-card{
-    position:absolute;left:-9999px;top:0;
-    width:480px;background:#fff;
-    font-family:'Segoe UI',Arial,sans-serif;
-    color:#111;
-  }
-  .sc-banner{background:linear-gradient(135deg,#0f2a5e,#1e4db7);padding:18px 22px 14px;color:#fff;text-align:center}
-  .sc-title{font-size:20px;font-weight:800;margin-bottom:3px;letter-spacing:.2px}
-  .sc-sub{font-size:12px;opacity:.75}
-  .sc-game{font-size:11px;opacity:.6;margin-top:3px}
-  .sc-body{padding:12px 14px 8px}
-  .sc-gh{background:#1e3a8a;color:#fff;font-size:14px;font-weight:700;padding:8px 12px;border-radius:5px 5px 0 0;display:flex;align-items:center;justify-content:space-between}
-  .sc-gc{font-weight:400;font-size:11px;opacity:.7}
-  .sc-tbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px;color:#111}
-  .sc-tbl td{padding:6px 10px;border:1px solid #cdd5e0;color:#111}
-  .sc-ch{background:#dde6f5;font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.04em}
-  /* Row colors — soft, no yellow, all text black */
-  .scr1{background:#dbeafe}.scr2{background:#d1fae5}.scr3{background:#ede9fe}
-  .scr4{background:#fff}.scr5{background:#f8fafc}.scr6{background:#fff}
-  .scr7{background:#f8fafc}.scr8{background:#fff}
-  .sc-pb{display:flex;justify-content:space-around;background:#f0f5ff;border:1px solid #c8d5f0;border-radius:5px;padding:9px 6px;margin-bottom:6px}
-  .sc-pi{text-align:center}
-  .sc-pa{font-size:13px;font-weight:700;color:#1e3a8a;display:block}
-  .sc-pl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
-  .sc-ft{text-align:center;font-size:9px;color:#94a3b8;padding:4px 0 10px}
+/* Admin update tab */
+.admin-intro{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.25);border-radius:10px;padding:12px 16px;font-size:13px;color:#c4b5fd;line-height:1.7;margin-bottom:1.5rem}
+.admin-intro strong{color:#a78bfa}
+.admin-intro code{background:rgba(124,58,237,.15);padding:2px 6px;border-radius:4px;font-size:12px;color:#a78bfa}
+.game-label-row{display:flex;gap:10px;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.game-label-row input{flex:1;min-width:200px;padding:9px 12px;border-radius:8px;border:1px solid var(--bdr);background:var(--card);color:var(--txt);font-size:14px;font-family:inherit}
+.group-inputs{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:16px;margin-bottom:1rem}
+.group-inputs h3{font-size:14px;font-weight:600;color:var(--igold);margin-bottom:12px;font-family:'Bebas Neue',sans-serif;letter-spacing:.5px;font-size:18px}
+.member-row{display:grid;grid-template-columns:1fr 110px;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--bdr)}
+.member-row:last-child{border-bottom:none}
+.member-row label{font-size:14px;font-weight:500;color:var(--txt)}
+.member-row input{padding:6px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--sur);color:var(--txt);font-size:14px;font-family:'Bebas Neue',sans-serif;text-align:center;width:100%}
+.member-row input:focus{outline:none;border-color:var(--acc)}
 
-  @media(max-width:520px){
-    .sr{grid-template-columns:repeat(3,1fr)}.sv{font-size:20px}
-    .lbh,.lbr{grid-template-columns:36px 1fr 56px 62px;padding:9px 10px}
-    .acts{flex-direction:column}.btn,.btoggle{justify-content:center}
-  }
+/* Image tab */
+.img-tip{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:1rem}
+.waw{background:#ddd6cc;border-radius:14px;padding:20px;display:flex;justify-content:center;margin-bottom:1rem;min-height:80px;align-items:center}
+.ia{display:flex;gap:8px;flex-wrap:wrap}
+.auto-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#93c5fd;line-height:1.7}
+.auto-box strong{color:#60a5fa}
+.es{text-align:center;padding:3rem 1rem;background:var(--card);border-radius:14px;border:1px dashed var(--bdr);margin-bottom:1.5rem}
+.ei{font-size:48px;margin-bottom:1rem}.et{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--mut);letter-spacing:1px}.es2{font-size:14px;color:var(--mut);margin-top:8px}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a2235;border:1px solid var(--bdr);color:var(--txt);padding:12px 20px;border-radius:10px;font-size:14px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* Share card */
+#share-card{position:absolute;left:-9999px;top:0;width:480px;background:#fff;font-family:'Segoe UI',Arial,sans-serif;color:#111}
+.sc-ban{background:linear-gradient(135deg,#0f2a5e,#1e4db7);padding:18px 22px 14px;color:#fff;text-align:center}
+.sc-t{font-size:20px;font-weight:800;margin-bottom:3px;letter-spacing:.2px}
+.sc-s{font-size:12px;opacity:.75}
+.sc-g{font-size:11px;opacity:.6;margin-top:3px}
+.sc-bod{padding:12px 14px 8px}
+.sc-gh{background:#1e3a8a;color:#fff;font-size:14px;font-weight:700;padding:8px 12px;border-radius:5px 5px 0 0;display:flex;align-items:center;justify-content:space-between}
+.sc-gc{font-weight:400;font-size:11px;opacity:.7}
+.sc-tbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px;color:#111}
+.sc-tbl td{padding:6px 10px;border:1px solid #cdd5e0;color:#111}
+.sc-ch{background:#dde6f5;font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.04em}
+.r1{background:#dbeafe}.r2{background:#d1fae5}.r3{background:#ede9fe}
+.r4{background:#fff}.r5{background:#f8fafc}.r6{background:#fff}.r7{background:#f8fafc}.r8{background:#fff}
+.sc-pb{display:flex;justify-content:space-around;background:#f0f5ff;border:1px solid #c8d5f0;border-radius:5px;padding:9px 6px;margin-bottom:6px}
+.sc-pi{text-align:center}
+.sc-pa{font-size:13px;font-weight:700;color:#1e3a8a;display:block}
+.sc-pl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.sc-ft{text-align:center;font-size:9px;color:#94a3b8;padding:4px 0 10px}
+
+@media(max-width:520px){
+  .sr{grid-template-columns:repeat(3,1fr)}.sv{font-size:20px}
+  .lbh,.lbr{grid-template-columns:36px 1fr 56px 62px;padding:9px 10px}
+  .acts{flex-direction:column}.btn,.btog{justify-content:center}
+  .tab{font-size:11px;padding:7px 4px}
+}
 </style>
 </head>
 <body>
-
 <header>
   <div class="hi">
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:26px">🏏</span>
-      <div><div class="logo-text">IPL Friends Tracker</div><div class="logo-sub">T20 IPL 2026</div></div>
+      <div><div class="lt">IPL Friends Tracker</div><div class="ls">T20 IPL 2026</div></div>
     </div>
-    <div class="lu" id="lu">Loading...</div>
+    <div id="lu">Loading...</div>
   </div>
 </header>
 
 <main>
   <div class="sr">
-    <div class="sc"><div class="sl">Total Fund</div><div class="sv gold">$750</div></div>
-    <div class="sc"><div class="sl">Prize Pool</div><div class="sv green">$500</div></div>
-    <div class="sc"><div class="sl">Party Fund</div><div class="sv blue">$250</div></div>
+    <div class="sc"><div class="sl">Total Fund</div><div class="sv g">$750</div></div>
+    <div class="sc"><div class="sl">Prize Pool</div><div class="sv n">$500</div></div>
+    <div class="sc"><div class="sl">Party Fund</div><div class="sv b">$250</div></div>
   </div>
 
-  <!-- Auto-send status box -->
   <div class="auto-box" id="auto-box">
-    <strong>⏰ Auto WhatsApp:</strong> The server sends a text message to all registered numbers automatically every evening after matches end (11:30 PM IST). Use the toggle below to enable/disable.
+    <strong>⏰ Auto WhatsApp:</strong> Server sends a text automatically every evening at 11:30 PM IST after matches. Toggle below to enable/disable. Set <strong>CRICAPI_KEY</strong> in Render env to enable live score fetching.
   </div>
 
-  <!-- Action buttons -->
   <div class="acts">
-    <button class="btn bp" id="btn-ref" onclick="refreshScores()">
-      <span id="rspin" class="spin"></span>🔄 Refresh Scores
-    </button>
+    <button class="btn bp" id="btn-ref" onclick="refreshScores()"><span id="rspin" class="spin"></span>🔄 Refresh Scores</button>
     <button class="btn bwa" onclick="sendWA()">📲 Send to WhatsApp</button>
-    <button class="btn bo" onclick="switchTab('img')">📸 WhatsApp Image</button>
-    <button class="btoggle" id="btn-toggle" onclick="toggleAutoSend()">⏰ Auto-Send: ...</button>
-    <a class="btn bwa" id="btn-wa-group"
-       href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t"
-       target="_blank" rel="noopener">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Open WhatsApp Group
+    <button class="btn bo" onclick="switchTab('img')">📸 Image</button>
+    <button class="btn bpu" onclick="switchTab('adm')">✏️ Admin Update</button>
+    <button class="btog" id="btn-tog" onclick="toggleAuto()">⏰ Auto: ...</button>
+    <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      WhatsApp Group
     </a>
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('a')">Group A (7)</button>
-    <button class="tab" onclick="switchTab('b')">Group B (8)</button>
-    <button class="tab" onclick="switchTab('img')">📸 Share Image</button>
+    <button class="tab active" onclick="switchTab('a')">Group A</button>
+    <button class="tab" onclick="switchTab('b')">Group B</button>
+    <button class="tab" onclick="switchTab('img')">📸 Image</button>
+    <button class="tab" onclick="switchTab('adm')">✏️ Update</button>
   </div>
 
   <div class="gs active" id="tab-a"><div id="lb-a"></div></div>
   <div class="gs" id="tab-b"><div id="lb-b"></div></div>
 
+  <!-- Image tab -->
   <div class="gs" id="tab-img">
-    <div class="img-tip">
-      Click <strong>Download Image</strong> then share it in your WhatsApp group — or click <strong>Send to WhatsApp</strong> to send a text message automatically.
-    </div>
+    <div class="img-tip">Click <strong>Download Image</strong> then share it in your WhatsApp group — or click <strong>Send Text to WhatsApp</strong> to send automatically.</div>
     <div class="waw" id="waw"><div style="color:#888;font-size:13px">Click Generate Image to preview</div></div>
     <div class="ia">
-      <button class="btn bo" onclick="genImg()">🖼️ Generate Image</button>
-      <button class="btn bg" id="btn-dl" onclick="dlImg()" style="display:none">⬇️ Download Image</button>
-      <button class="btn bwa" onclick="sendWA()">📲 Send Text to WhatsApp</button>
-      <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Open Group
-      </a>
+      <button class="btn bo" onclick="genImg()">🖼️ Generate</button>
+      <button class="btn bg" id="btn-dl" onclick="dlImg()" style="display:none">⬇️ Download</button>
+      <button class="btn bwa" onclick="sendWA()">📲 Send Text</button>
+      <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">Open Group</a>
+    </div>
+  </div>
+
+  <!-- Admin Update tab -->
+  <div class="gs" id="tab-adm">
+    <div class="admin-intro">
+      <strong>📊 Admin: Enter runs from Google Scorecard</strong><br>
+      Go to Google → search <code>ipl cricket score</code> → click today's match → Scorecard tab → look up each player's runs → enter the updated <strong>cumulative season total</strong> for each person below.<br><br>
+      Only change the numbers that updated. Leave others as-is — they'll keep their current value.
+    </div>
+    <div class="game-label-row">
+      <input id="game-label-inp" type="text" placeholder="Game label e.g. Game 7 — 3 Apr">
+      <button class="btn bpu" onclick="submitAdminUpdate()"><span id="aspin" class="spin"></span>💾 Save & Update</button>
+    </div>
+    <div class="group-inputs">
+      <h3>Group A</h3>
+      <div id="adm-a"></div>
+    </div>
+    <div class="group-inputs">
+      <h3>Group B</h3>
+      <div id="adm-b"></div>
     </div>
   </div>
 </main>
 
-<!-- OFF-SCREEN SHARE CARD -->
+<!-- Off-screen share card -->
 <div id="share-card">
-  <div class="sc-banner">
-    <div class="sc-title">🏏 IPL Friends Tracker — 2026</div>
-    <div class="sc-sub">T20 Indian Premier League</div>
-    <div class="sc-game" id="sc-gl"></div>
+  <div class="sc-ban">
+    <div class="sc-t">🏏 IPL Friends Tracker — 2026</div>
+    <div class="sc-s">T20 Indian Premier League</div>
+    <div class="sc-g" id="sc-gl"></div>
   </div>
-  <div class="sc-body">
+  <div class="sc-bod">
     <div class="sc-gh">Group A <span class="sc-gc">(7 members)</span></div>
     <table class="sc-tbl" id="sc-ta">
       <tr><td class="sc-ch" style="width:34px;text-align:center">Rank</td><td class="sc-ch">Name</td><td class="sc-ch" style="width:54px;text-align:center">Runs</td><td class="sc-ch" style="width:54px;text-align:center">Prize</td></tr>
@@ -193,29 +214,65 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const PRIZES=["$125","$75","$50"];
-const MEDALS=["🥇","🥈","🥉"];
-const ROW_CLS=["scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8"];
-let _db=null, _canvas=null;
+const PRIZES=["$125","$75","$50"],MEDALS=["🥇","🥈","🥉"],RCLS=["r1","r2","r3","r4","r5","r6","r7","r8"];
+let _db=null,_cv=null;
 
-function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show";setTimeout(()=>t.className="toast",3500)}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.className="toast show";setTimeout(()=>t.className="toast",3500)}
 
 function switchTab(n){
   document.querySelectorAll(".gs").forEach(e=>e.classList.remove("active"));
   document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
   document.getElementById("tab-"+n).classList.add("active");
-  ["a","b","img"].forEach((x,i)=>{if(x===n)document.querySelectorAll(".tab")[i].classList.add("active")});
+  ["a","b","img","adm"].forEach((x,i)=>{if(x===n)document.querySelectorAll(".tab")[i]?.classList.add("active")});
 }
 
 function renderLB(scores,id){
-  if(!scores||!scores.length){
-    document.getElementById(id).innerHTML=`<div class="es"><div class="ei">🏏</div><div class="et">No scores yet</div><div class="es2">Click Refresh Scores to load IPL 2026 data</div></div>`;return;
+  if(!scores?.length){
+    document.getElementById(id).innerHTML='<div class="es"><div class="ei">🏏</div><div class="et">No scores yet</div><div class="es2">Click Admin Update to enter latest runs</div></div>';return;
   }
   const rows=scores.map((s,i)=>{
-    const bc=i===0?"r1":i===1?"r2":i===2?"r3":"rn";
+    const bc=i===0?"rb1":i===1?"rb2":i===2?"rb3":"rbn";
     return `<div class="lbr"><div><div class="rb ${bc}">${i<3?MEDALS[i]:i+1}</div></div><div class="mn">${s.member}</div><div class="rv">${s.totalRuns}</div><div class="pv">${PRIZES[i]||""}</div></div>`;
   }).join("");
   document.getElementById(id).innerHTML=`<div class="lb"><div class="lbh"><div>Rank</div><div>Name</div><div style="text-align:right">Runs</div><div style="text-align:right">Prize</div></div>${rows}</div>`;
+}
+
+function buildAdminInputs(scores,containerId){
+  const html=scores.map(s=>`
+    <div class="member-row">
+      <label>${s.member}</label>
+      <input type="number" id="adm-${s.member.replace(/\s/g,'-')}" value="${s.totalRuns}" min="0" max="9999">
+    </div>`).join("");
+  document.getElementById(containerId).innerHTML=html;
+}
+
+async function submitAdminUpdate(){
+  if(!_db){toast("Load scores first");return}
+  const btn=document.querySelector('[onclick="submitAdminUpdate()"]');
+  const sp=document.getElementById("aspin");
+  btn.disabled=true;sp.style.display="block";
+
+  const label=document.getElementById("game-label-inp").value.trim()||_db.lastGame;
+  const newA={},newB={};
+  for(const m of _db.groupA){
+    const inp=document.getElementById("adm-"+m.member.replace(/\s/g,'-'));
+    if(inp)newA[m.member]=parseInt(inp.value)||0;
+  }
+  for(const m of _db.groupB){
+    const inp=document.getElementById("adm-"+m.member.replace(/\s/g,'-'));
+    if(inp)newB[m.member]=parseInt(inp.value)||0;
+  }
+
+  try{
+    const res=await fetch("/api/admin-update",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({gameLabel:label,groupA:newA,groupB:newB})});
+    const data=await res.json();
+    if(data.status==="saved"){
+      await loadScores();
+      switchTab("a");
+      toast("✅ Scores updated! Leaderboard refreshed.");
+    }else{toast("❌ "+data.message)}
+  }catch(e){toast("❌ Failed: "+e.message)}
+  btn.disabled=false;sp.style.display="none";
 }
 
 function fillScTable(tid,scores){
@@ -223,9 +280,7 @@ function fillScTable(tid,scores){
   const hdr=tbl.querySelector("tr");
   tbl.innerHTML="";tbl.appendChild(hdr);
   scores.forEach((s,i)=>{
-    const cls=ROW_CLS[i]||"scr8";
-    const tr=document.createElement("tr");tr.className=cls;
-    // ALL text black, only prize column gets green
+    const tr=document.createElement("tr");tr.className=RCLS[i]||"r8";
     tr.innerHTML=`<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${i+1}</td>`+
       `<td style="font-weight:${i<3?700:500};border:1px solid #cdd5e0;color:#111">${s.member}</td>`+
       `<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${s.totalRuns}</td>`+
@@ -235,69 +290,69 @@ function fillScTable(tid,scores){
 }
 
 async function genImg(){
-  if(!_db||!_db.groupA?.length){toast("⚠️ Refresh scores first");return}
+  if(!_db?.groupA?.length){toast("Load scores first");return}
   const date=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
   document.getElementById("sc-gl").textContent=`${_db.lastGame||"Latest"} • ${date}`;
-  fillScTable("sc-ta",_db.groupA);
-  fillScTable("sc-tb",_db.groupB);
-  toast("⏳ Generating image...");
+  fillScTable("sc-ta",_db.groupA);fillScTable("sc-tb",_db.groupB);
+  toast("⏳ Generating...");
   await new Promise(r=>setTimeout(r,300));
   try{
-    _canvas=await html2canvas(document.getElementById("share-card"),{scale:2.5,useCORS:true,backgroundColor:"#ffffff",logging:false,width:480});
+    _cv=await html2canvas(document.getElementById("share-card"),{scale:2.5,useCORS:true,backgroundColor:"#fff",logging:false,width:480});
     const w=document.getElementById("waw");w.innerHTML="";
-    const img=document.createElement("img");
-    img.src=_canvas.toDataURL("image/png");
+    const img=document.createElement("img");img.src=_cv.toDataURL("image/png");
     img.style.cssText="max-width:100%;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.3)";
     w.appendChild(img);
     document.getElementById("btn-dl").style.display="flex";
-    toast("✅ Image ready — click Download!");
-  }catch(e){toast("❌ Failed: "+e.message);console.error(e)}
+    toast("✅ Done — click Download!");
+  }catch(e){toast("❌ "+e.message);console.error(e)}
 }
 
 function dlImg(){
-  if(!_canvas){toast("Generate image first");return}
-  const date=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
-  const a=document.createElement("a");a.download=`IPL-${date}.png`;a.href=_canvas.toDataURL("image/png");a.click();
-  toast("⬇️ Saved! Share it in your WhatsApp group.");
+  if(!_cv){toast("Generate first");return}
+  const d=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
+  const a=document.createElement("a");a.download=`IPL-${d}.png`;a.href=_cv.toDataURL("image/png");a.click();
+  toast("⬇️ Saved! Share it in WhatsApp.");
 }
 
 async function sendWA(){
   try{
     const r=await fetch("/api/send-whatsapp",{method:"POST"});
     const d=await r.json();
-    toast(d.status==="sent"?"📲 WhatsApp text sent to all numbers!":"⚠️ "+d.message);
-  }catch(e){toast("❌ Send failed")}
+    toast(d.status==="sent"?"📲 Sent to all numbers!":"⚠️ "+d.message);
+  }catch(e){toast("❌ Failed")}
 }
 
-async function toggleAutoSend(){
+async function toggleAuto(){
   try{
     const r=await fetch("/api/toggle-auto-send",{method:"POST"});
     const d=await r.json();
-    updateToggleBtn(d.autoSendEnabled);
-    toast(d.autoSendEnabled?"✅ Auto-send ENABLED — sends every evening":"❌ Auto-send DISABLED");
+    setToggle(d.autoSendEnabled);
+    toast(d.autoSendEnabled?"✅ Auto-send ON":"❌ Auto-send OFF");
   }catch(e){toast("❌ Toggle failed")}
 }
-
-function updateToggleBtn(on){
-  const b=document.getElementById("btn-toggle");
-  b.textContent=on?"⏰ Auto-Send: ON":"⏰ Auto-Send: OFF";
-  b.className="btoggle "+(on?"on":"off");
+function setToggle(on){
+  const b=document.getElementById("btn-tog");
+  b.textContent=on?"⏰ Auto: ON":"⏰ Auto: OFF";
+  b.className="btog "+(on?"on":"off");
 }
 
 async function loadScores(){
   try{
     const [sr,st]=await Promise.all([fetch("/api/scores"),fetch("/api/settings")]);
-    _db=await sr.json();const settings=await st.json();
+    _db=await sr.json();const s=await st.json();
     if(_db.lastUpdated){
       const d=new Date(_db.lastUpdated);
       document.getElementById("lu").innerHTML=`Updated<br>${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
-    }else{document.getElementById("lu").textContent="No data yet"}
+    }else document.getElementById("lu").textContent="No data";
     renderLB(_db.groupA,"lb-a");
     renderLB(_db.groupB,"lb-b");
-    updateToggleBtn(settings.autoSendEnabled);
-    if(!settings.hasRecipients){
-      document.getElementById("auto-box").innerHTML=`<strong>⏰ Auto WhatsApp:</strong> Add phone numbers to <code>WHATSAPP_RECIPIENTS</code> in Render environment settings to enable automatic nightly messages. Format: <code>919876543210:apikey</code>`;
-    }
+    setToggle(s.autoSendEnabled);
+    // Populate admin inputs
+    if(_db.groupA?.length) buildAdminInputs(_db.groupA,"adm-a");
+    if(_db.groupB?.length) buildAdminInputs(_db.groupB,"adm-b");
+    // Set game label placeholder
+    if(_db.lastGame) document.getElementById("game-label-inp").placeholder=`Next after: ${_db.lastGame}`;
+    if(!s.hasRecipients) document.getElementById("auto-box").innerHTML='<strong>⏰ Setup:</strong> Add <strong>WHATSAPP_RECIPIENTS</strong> in Render env (format: <code>919876543210:apikey</code>) + <strong>CRICAPI_KEY</strong> from cricapi.com (free, 100 req/day) for live score fetching.';
   }catch(e){document.getElementById("lu").textContent="Error"}
 }
 
@@ -307,7 +362,7 @@ async function refreshScores(){
   toast("⏳ Fetching live IPL 2026 scores...");
   try{
     await fetch("/api/refresh",{method:"POST"});
-    setTimeout(async()=>{await loadScores();btn.disabled=false;sp.style.display="none";toast("✅ Scores updated!")},35000);
+    setTimeout(async()=>{await loadScores();btn.disabled=false;sp.style.display="none";toast("✅ Updated!")},35000);
   }catch(e){toast("❌ Refresh failed");btn.disabled=false;sp.style.display="none"}
 }
 
