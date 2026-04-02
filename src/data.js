@@ -16,7 +16,7 @@ const GROUP_A = {
 
 const GROUP_B = {
   "Viral V":      ["RCB-2", "MI-1",  "RCB-3", "PBK-5", "PBK-3", "CSK-5"],
-  Pixit:          ["GT-2",  "CSK-2", "LSG-4", "MI-5",  "CSK-3", "RCB-4"],
+  Dixit:          ["GT-2",  "CSK-2", "LSG-4", "MI-5",  "CSK-3", "RCB-4"],
   Jignesh:        ["RCB-1", "CSK-1", "RR-3",  "RCB-5", "GT-3",  "GT-4"],
   "Viral K":      ["SRH-2", "KKR-2", "MI-4",  "KKR-4", "GT-5",  "KKR-5"],
   Sanjaykumar:    ["PBK-2", "GT-1",  "DC-3",  "RR-4",  "RCB-4", "RR-5"],
