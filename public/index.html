@@ -7,159 +7,132 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  :root {
-    --bg:#0a0f1a;--surface:#111827;--card:#1a2235;
-    --border:rgba(255,255,255,0.08);--text:#f0f4ff;--muted:#8494a9;
-    --accent:#3b82f6;--green:#22c55e;--ipl-blue:#1e3a8a;--ipl-gold:#fbbf24;
-  }
+  :root{--bg:#0a0f1a;--surface:#111827;--card:#1a2235;--border:rgba(255,255,255,0.08);--text:#f0f4ff;--muted:#8494a9;--accent:#3b82f6;--green:#22c55e;--ipl-blue:#1e3a8a;--ipl-gold:#fbbf24}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-
   header{background:linear-gradient(135deg,#0a1628 0%,#1e3a8a 50%,#0a1628 100%);border-bottom:1px solid var(--border);padding:0 1rem;position:sticky;top:0;z-index:100}
-  .header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+  .hi{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
   .logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--ipl-gold)}
-  .logo-sub{font-size:11px;color:var(--muted);letter-spacing:.05em}
-  .last-update{font-size:11px;color:var(--muted);text-align:right;line-height:1.5}
-
+  .logo-sub{font-size:11px;color:var(--muted)}
+  .lu{font-size:11px;color:var(--muted);text-align:right;line-height:1.5}
   main{max-width:900px;margin:0 auto;padding:1.5rem 1rem}
-
-  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
-  .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
-  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-  .stat-val{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.5px}
-  .stat-val.gold{color:var(--ipl-gold)}.stat-val.green{color:var(--green)}.stat-val.blue{color:#60a5fa}
-
-  .actions{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
-  .btn{display:flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-decoration:none}
-  .btn-primary{background:var(--accent);color:white}.btn-primary:hover{background:#2563eb}
-  .btn-green{background:#16a34a;color:white}.btn-green:hover{background:#15803d}
-  .btn-orange{background:#d97706;color:white}.btn-orange:hover{background:#b45309}
-  .btn-wa{background:#25d366;color:white}.btn-wa:hover{background:#1ebe5d}
-  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{background:rgba(255,255,255,.04)}
+  .sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+  .sc{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
+  .sl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+  .sv{font-family:'Bebas Neue',sans-serif;font-size:28px}.sv.gold{color:var(--ipl-gold)}.sv.green{color:var(--green)}.sv.blue{color:#60a5fa}
+  .acts{display:flex;gap:8px;margin-bottom:1.5rem;flex-wrap:wrap}
+  .btn{display:flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;transition:all .15s;font-family:inherit;text-decoration:none;white-space:nowrap}
+  .bp{background:var(--accent);color:white}.bp:hover{background:#2563eb}
+  .bg{background:#16a34a;color:white}.bg:hover{background:#15803d}
+  .bwa{background:#25d366;color:white}.bwa:hover{background:#1ebe5d}
+  .bo{background:#d97706;color:white}.bo:hover{background:#b45309}
   .btn:disabled{opacity:.5;cursor:not-allowed}
-  .spinner{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-
+  /* Auto-send toggle button */
+  .btoggle{padding:9px 16px;border-radius:8px;font-size:14px;font-weight:500;border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .15s}
+  .btoggle.on{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3)}
+  .btoggle.off{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+  .spin{display:none;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
   .tabs{display:flex;gap:2px;margin-bottom:1.5rem;background:var(--card);border-radius:10px;padding:4px}
   .tab{flex:1;padding:8px;font-size:13px;font-weight:500;border:none;background:none;color:var(--muted);cursor:pointer;border-radius:7px;transition:all .15s;font-family:inherit}
   .tab.active{background:var(--accent);color:white}
-
-  .group-section{display:none}.group-section.active{display:block}
-
-  .leaderboard{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem}
-  .lb-header{background:var(--ipl-blue);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:10px 16px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.6)}
-  .lb-row{background:var(--surface);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:12px 16px;align-items:center;border-top:1px solid var(--border)}
-  .lb-row:hover{background:var(--card)}
-  .rank-badge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
-  .rb-1{background:rgba(168,208,245,.15);color:#a8d0f5}
-  .rb-2{background:rgba(152,220,190,.15);color:#98dcc0}
-  .rb-3{background:rgba(220,180,245,.15);color:#dcb4f5}
-  .rb-n{background:rgba(255,255,255,.05);color:var(--muted);font-size:13px}
-  .member-name{font-weight:500;font-size:15px}
-  .runs-val{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--ipl-gold)}
-  .prize-val{text-align:right;font-size:13px;font-weight:600;color:var(--green)}
-
-  /* WhatsApp group tip box */
-  .wa-group-box{background:rgba(37,211,102,.07);border:1px solid rgba(37,211,102,.25);border-radius:12px;padding:14px 16px;margin-bottom:1.5rem;font-size:13px;color:#86efac;line-height:1.7}
-  .wa-group-box strong{color:#4ade80}
-  .wa-group-box code{background:rgba(37,211,102,.12);padding:2px 6px;border-radius:4px;font-size:12px;color:#4ade80}
-
+  .gs{display:none}.gs.active{display:block}
+  .lb{border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:1.5rem}
+  .lbh{background:var(--ipl-blue);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:10px 16px;font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.08em}
+  .lbr{background:var(--surface);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:12px 16px;align-items:center;border-top:1px solid var(--border)}
+  .lbr:hover{background:var(--card)}
+  .rb{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
+  .r1{background:rgba(168,208,245,.15);color:#a8d0f5}
+  .r2{background:rgba(152,220,190,.15);color:#98dcc0}
+  .r3{background:rgba(220,180,245,.15);color:#dcb4f5}
+  .rn{background:rgba(255,255,255,.05);color:var(--muted)}
+  .mn{font-weight:500;font-size:15px}
+  .rv{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--ipl-gold)}
+  .pv{text-align:right;font-size:13px;font-weight:600;color:var(--green)}
   /* Image tab */
   .img-tip{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:1rem}
-  .wa-preview-wrap{background:#ddd6cc;border-radius:14px;padding:20px;display:flex;justify-content:center;margin-bottom:1rem;min-height:80px;align-items:center}
-  .image-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-  .empty-state{text-align:center;padding:3rem 1rem;background:var(--card);border-radius:14px;border:1px dashed var(--border);margin-bottom:1.5rem}
-  .empty-icon{font-size:48px;margin-bottom:1rem}
-  .empty-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);letter-spacing:1px}
-  .empty-sub{font-size:14px;color:var(--muted);margin-top:8px}
-
-  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a2235;border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:300px}
+  .waw{background:#ddd6cc;border-radius:14px;padding:20px;display:flex;justify-content:center;margin-bottom:1rem;min-height:80px;align-items:center}
+  .ia{display:flex;gap:8px;flex-wrap:wrap}
+  /* Auto-send info box */
+  .auto-box{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:10px;padding:12px 16px;margin-bottom:1.5rem;font-size:13px;color:#93c5fd;line-height:1.7}
+  .auto-box strong{color:#60a5fa}
+  .es{text-align:center;padding:3rem 1rem;background:var(--card);border-radius:14px;border:1px dashed var(--border);margin-bottom:1.5rem}
+  .ei{font-size:48px;margin-bottom:1rem}.et{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);letter-spacing:1px}.es2{font-size:14px;color:var(--muted);margin-top:8px}
+  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a2235;border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:280px}
   .toast.show{transform:translateY(0);opacity:1}
 
-  /* ── Share card (off-screen, captured by html2canvas) ─────── */
+  /* ── SHARE CARD (off-screen, html2canvas capture) ── */
   #share-card{
     position:absolute;left:-9999px;top:0;
-    width:460px;
-    background:#ffffff;
+    width:480px;background:#fff;
     font-family:'Segoe UI',Arial,sans-serif;
-    border-radius:0;
+    color:#111;
   }
-  .sc-banner{
-    background:linear-gradient(135deg,#0f2a5e 0%,#1e4db7 100%);
-    padding:20px 22px 16px;color:white;text-align:center;
-  }
-  .sc-title{font-size:21px;font-weight:800;letter-spacing:.3px;margin-bottom:3px}
-  .sc-sub{font-size:12px;opacity:.75;margin-bottom:2px}
-  .sc-game{font-size:11px;opacity:.6;margin-top:2px}
-  .sc-body{padding:14px 16px 10px}
-  .sc-group-title{
-    background:#1e3a8a;color:white;
-    font-size:14px;font-weight:700;
-    padding:8px 14px;
-    margin-bottom:0;
-    border-radius:6px 6px 0 0;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .sc-group-count{font-weight:400;font-size:12px;opacity:.75}
-  .sc-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
-  .sc-table td{padding:6px 10px;border:1px solid #d0d8e8;border-top:none}
-  .sc-table tr:first-child td{border-top:1px solid #d0d8e8}
-  .sc-col-head td{background:#e8edf8;font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.04em;padding:5px 10px}
-  /* Row highlight colors — soft, no yellow */
-  .sc-r1{background:#dbeafe} /* light blue — 1st */
-  .sc-r2{background:#d1fae5} /* light green — 2nd */
-  .sc-r3{background:#ede9fe} /* light purple — 3rd */
-  .sc-r4{background:#ffffff}
-  .sc-r5{background:#f8fafc}
-  .sc-r6{background:#ffffff}
-  .sc-r7{background:#f8fafc}
-  .sc-r8{background:#ffffff}
-  .sc-prize-bar{
-    display:flex;justify-content:space-around;
-    background:#f0f4ff;border:1px solid #c8d5f0;
-    border-radius:6px;padding:10px 8px;margin-bottom:8px;
-  }
+  .sc-banner{background:linear-gradient(135deg,#0f2a5e,#1e4db7);padding:18px 22px 14px;color:#fff;text-align:center}
+  .sc-title{font-size:20px;font-weight:800;margin-bottom:3px;letter-spacing:.2px}
+  .sc-sub{font-size:12px;opacity:.75}
+  .sc-game{font-size:11px;opacity:.6;margin-top:3px}
+  .sc-body{padding:12px 14px 8px}
+  .sc-gh{background:#1e3a8a;color:#fff;font-size:14px;font-weight:700;padding:8px 12px;border-radius:5px 5px 0 0;display:flex;align-items:center;justify-content:space-between}
+  .sc-gc{font-weight:400;font-size:11px;opacity:.7}
+  .sc-tbl{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px;color:#111}
+  .sc-tbl td{padding:6px 10px;border:1px solid #cdd5e0;color:#111}
+  .sc-ch{background:#dde6f5;font-size:11px;font-weight:700;color:#1e3a8a;text-transform:uppercase;letter-spacing:.04em}
+  /* Row colors — soft, no yellow, all text black */
+  .scr1{background:#dbeafe}.scr2{background:#d1fae5}.scr3{background:#ede9fe}
+  .scr4{background:#fff}.scr5{background:#f8fafc}.scr6{background:#fff}
+  .scr7{background:#f8fafc}.scr8{background:#fff}
+  .sc-pb{display:flex;justify-content:space-around;background:#f0f5ff;border:1px solid #c8d5f0;border-radius:5px;padding:9px 6px;margin-bottom:6px}
   .sc-pi{text-align:center}
-  .sc-pi-amt{font-size:14px;font-weight:700;color:#1e3a8a;display:block}
-  .sc-pi-lbl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
-  .sc-footer{text-align:center;font-size:9px;color:#94a3b8;padding:4px 0 12px}
+  .sc-pa{font-size:13px;font-weight:700;color:#1e3a8a;display:block}
+  .sc-pl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+  .sc-ft{text-align:center;font-size:9px;color:#94a3b8;padding:4px 0 10px}
 
   @media(max-width:520px){
-    .stats-row{grid-template-columns:repeat(3,1fr)}
-    .stat-val{font-size:20px}
-    .lb-header,.lb-row{grid-template-columns:36px 1fr 58px 64px;padding:9px 10px}
-    .actions{flex-direction:column}.btn{justify-content:center}
+    .sr{grid-template-columns:repeat(3,1fr)}.sv{font-size:20px}
+    .lbh,.lbr{grid-template-columns:36px 1fr 56px 62px;padding:9px 10px}
+    .acts{flex-direction:column}.btn,.btoggle{justify-content:center}
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="hi">
     <div style="display:flex;align-items:center;gap:10px">
       <span style="font-size:26px">🏏</span>
-      <div>
-        <div class="logo-text">IPL Friends Tracker</div>
-        <div class="logo-sub">T20 IPL 2026</div>
-      </div>
+      <div><div class="logo-text">IPL Friends Tracker</div><div class="logo-sub">T20 IPL 2026</div></div>
     </div>
-    <div class="last-update" id="last-update">Loading...</div>
+    <div class="lu" id="lu">Loading...</div>
   </div>
 </header>
 
 <main>
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-label">Total Fund</div><div class="stat-val gold">$750</div></div>
-    <div class="stat-card"><div class="stat-label">Prize Pool</div><div class="stat-val green">$500</div></div>
-    <div class="stat-card"><div class="stat-label">Party Fund</div><div class="stat-val blue">$250</div></div>
+  <div class="sr">
+    <div class="sc"><div class="sl">Total Fund</div><div class="sv gold">$750</div></div>
+    <div class="sc"><div class="sl">Prize Pool</div><div class="sv green">$500</div></div>
+    <div class="sc"><div class="sl">Party Fund</div><div class="sv blue">$250</div></div>
   </div>
 
-  <div class="actions">
-    <button class="btn btn-primary" id="btn-refresh" onclick="refreshScores()">
-      <span id="ref-spin" class="spinner"></span>🔄 Refresh Scores
+  <!-- Auto-send status box -->
+  <div class="auto-box" id="auto-box">
+    <strong>⏰ Auto WhatsApp:</strong> The server sends a text message to all registered numbers automatically every evening after matches end (11:30 PM IST). Use the toggle below to enable/disable.
+  </div>
+
+  <!-- Action buttons -->
+  <div class="acts">
+    <button class="btn bp" id="btn-ref" onclick="refreshScores()">
+      <span id="rspin" class="spin"></span>🔄 Refresh Scores
     </button>
-    <button class="btn btn-orange" onclick="switchTab('img')">📸 WhatsApp Image</button>
+    <button class="btn bwa" onclick="sendWA()">📲 Send to WhatsApp</button>
+    <button class="btn bo" onclick="switchTab('img')">📸 WhatsApp Image</button>
+    <button class="btoggle" id="btn-toggle" onclick="toggleAutoSend()">⏰ Auto-Send: ...</button>
+    <a class="btn bwa" id="btn-wa-group"
+       href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t"
+       target="_blank" rel="noopener">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Open WhatsApp Group
+    </a>
   </div>
 
   <div class="tabs">
@@ -168,238 +141,174 @@
     <button class="tab" onclick="switchTab('img')">📸 Share Image</button>
   </div>
 
-  <!-- Group A -->
-  <div class="group-section active" id="tab-a"><div id="lb-a-content"></div></div>
+  <div class="gs active" id="tab-a"><div id="lb-a"></div></div>
+  <div class="gs" id="tab-b"><div id="lb-b"></div></div>
 
-  <!-- Group B -->
-  <div class="group-section" id="tab-b"><div id="lb-b-content"></div></div>
-
-  <!-- Image tab -->
-  <div class="group-section" id="tab-img">
-
-    <!-- WhatsApp Group tip -->
-    <div class="wa-group-box">
-      <strong>📲 How to share in your WhatsApp group:</strong><br>
-      Click <strong>Generate Image</strong> → then <strong>Download Image</strong> to save the PNG → open WhatsApp → go to your group → attach the image and send.<br><br>
-      <strong>Or use the group link button:</strong> Click <strong>Open WhatsApp Group</strong> below (paste your group invite link in the Settings on the server) to open the group directly, then paste the downloaded image.
-      <br><br>
-      <strong>💡 Auto-text option:</strong> The server sends a formatted text message automatically every evening after matches — no manual work needed.
-    </div>
-
+  <div class="gs" id="tab-img">
     <div class="img-tip">
-      Click <strong>Download Image</strong> then share it in your WhatsApp group — or click <strong>Send Text to WhatsApp</strong> to send automatically.
+      Click <strong>Download Image</strong> then share it in your WhatsApp group — or click <strong>Send to WhatsApp</strong> to send a text message automatically.
     </div>
-
-    <div class="wa-preview-wrap" id="wa-preview-wrap">
-      <div style="color:#888;font-size:13px">Click Generate Image to preview</div>
-    </div>
-
-    <div class="image-actions">
-      <button class="btn btn-orange" onclick="generateImage()">🖼️ Generate Image</button>
-      <button class="btn btn-green" id="btn-dl" onclick="downloadImage()" style="display:none">⬇️ Download Image</button>
-      <a class="btn btn-wa" id="btn-wa-group" href="#" onclick="openWAGroup(event)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Open WhatsApp Group
+    <div class="waw" id="waw"><div style="color:#888;font-size:13px">Click Generate Image to preview</div></div>
+    <div class="ia">
+      <button class="btn bo" onclick="genImg()">🖼️ Generate Image</button>
+      <button class="btn bg" id="btn-dl" onclick="dlImg()" style="display:none">⬇️ Download Image</button>
+      <button class="btn bwa" onclick="sendWA()">📲 Send Text to WhatsApp</button>
+      <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Open Group
       </a>
     </div>
   </div>
 </main>
 
-<!-- Hidden share card captured by html2canvas -->
+<!-- OFF-SCREEN SHARE CARD -->
 <div id="share-card">
   <div class="sc-banner">
     <div class="sc-title">🏏 IPL Friends Tracker — 2026</div>
     <div class="sc-sub">T20 Indian Premier League</div>
-    <div class="sc-game" id="sc-game-label"></div>
+    <div class="sc-game" id="sc-gl"></div>
   </div>
   <div class="sc-body">
-    <div class="sc-group-title">
-      Group A <span class="sc-group-count">(7 members)</span>
-    </div>
-    <table class="sc-table" id="sc-table-a">
-      <tr class="sc-col-head"><td style="width:36px">Rank</td><td>Name</td><td style="width:56px;text-align:center">Runs</td><td style="width:56px;text-align:center">Prize</td></tr>
+    <div class="sc-gh">Group A <span class="sc-gc">(7 members)</span></div>
+    <table class="sc-tbl" id="sc-ta">
+      <tr><td class="sc-ch" style="width:34px;text-align:center">Rank</td><td class="sc-ch">Name</td><td class="sc-ch" style="width:54px;text-align:center">Runs</td><td class="sc-ch" style="width:54px;text-align:center">Prize</td></tr>
     </table>
-    <div class="sc-group-title" style="border-radius:6px 6px 0 0;margin-top:4px">
-      Group B <span class="sc-group-count">(8 members)</span>
-    </div>
-    <table class="sc-table" id="sc-table-b">
-      <tr class="sc-col-head"><td style="width:36px">Rank</td><td>Name</td><td style="width:56px;text-align:center">Runs</td><td style="width:56px;text-align:center">Prize</td></tr>
+    <div class="sc-gh" style="margin-top:4px;border-radius:5px 5px 0 0">Group B <span class="sc-gc">(8 members)</span></div>
+    <table class="sc-tbl" id="sc-tb">
+      <tr><td class="sc-ch" style="width:34px;text-align:center">Rank</td><td class="sc-ch">Name</td><td class="sc-ch" style="width:54px;text-align:center">Runs</td><td class="sc-ch" style="width:54px;text-align:center">Prize</td></tr>
     </table>
-    <div class="sc-prize-bar">
-      <div class="sc-pi"><span class="sc-pi-amt">1st — $125</span><span class="sc-pi-lbl">Per Group</span></div>
+    <div class="sc-pb">
+      <div class="sc-pi"><span class="sc-pa">1st — $125</span><span class="sc-pl">Per Group</span></div>
       <div style="width:1px;background:#c8d5f0"></div>
-      <div class="sc-pi"><span class="sc-pi-amt">2nd — $75</span><span class="sc-pi-lbl">Per Group</span></div>
+      <div class="sc-pi"><span class="sc-pa">2nd — $75</span><span class="sc-pl">Per Group</span></div>
       <div style="width:1px;background:#c8d5f0"></div>
-      <div class="sc-pi"><span class="sc-pi-amt">3rd — $50</span><span class="sc-pi-lbl">Per Group</span></div>
+      <div class="sc-pi"><span class="sc-pa">3rd — $50</span><span class="sc-pl">Per Group</span></div>
       <div style="width:1px;background:#c8d5f0"></div>
-      <div class="sc-pi"><span class="sc-pi-amt">Party — $250</span><span class="sc-pi-lbl">Shared</span></div>
+      <div class="sc-pi"><span class="sc-pa">Party — $250</span><span class="sc-pl">Shared</span></div>
     </div>
   </div>
-  <div class="sc-footer">Auto-updated after every IPL match ✅ | iplt20-friends.onrender.com</div>
+  <div class="sc-ft">Auto-updated after every IPL match ✅</div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const PRIZES = ["$125","$75","$50"];
-const MEDALS = ["🥇","🥈","🥉"];
-const ROW_CLASSES = ["sc-r1","sc-r2","sc-r3","sc-r4","sc-r5","sc-r6","sc-r7","sc-r8"];
-let _db = null;
-let _canvas = null;
+const PRIZES=["$125","$75","$50"];
+const MEDALS=["🥇","🥈","🥉"];
+const ROW_CLS=["scr1","scr2","scr3","scr4","scr5","scr6","scr7","scr8"];
+let _db=null, _canvas=null;
 
-function showToast(msg, type="success") {
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.className = `toast show`;
-  setTimeout(() => t.className = "toast", 3500);
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.className="toast show";setTimeout(()=>t.className="toast",3500)}
+
+function switchTab(n){
+  document.querySelectorAll(".gs").forEach(e=>e.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));
+  document.getElementById("tab-"+n).classList.add("active");
+  ["a","b","img"].forEach((x,i)=>{if(x===n)document.querySelectorAll(".tab")[i].classList.add("active")});
 }
 
-function switchTab(name) {
-  document.querySelectorAll(".group-section").forEach(el => el.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
-  document.getElementById("tab-"+name).classList.add("active");
-  ["a","b","img"].forEach((n,i) => {
-    if(n===name) document.querySelectorAll(".tab")[i].classList.add("active");
-  });
-}
-
-function renderLeaderboard(scores, containerId) {
-  if (!scores || !scores.length) {
-    document.getElementById(containerId).innerHTML = `<div class="empty-state">
-      <div class="empty-icon">🏏</div>
-      <div class="empty-title">No scores yet</div>
-      <div class="empty-sub">Click "Refresh Scores" to load IPL 2026 data</div>
-    </div>`;
-    return;
+function renderLB(scores,id){
+  if(!scores||!scores.length){
+    document.getElementById(id).innerHTML=`<div class="es"><div class="ei">🏏</div><div class="et">No scores yet</div><div class="es2">Click Refresh Scores to load IPL 2026 data</div></div>`;return;
   }
-  const rows = scores.map((s, i) => {
-    const bc = i===0?"rb-1":i===1?"rb-2":i===2?"rb-3":"rb-n";
-    const label = i<3 ? MEDALS[i] : i+1;
-    return `<div class="lb-row">
-      <div><div class="rank-badge ${bc}">${label}</div></div>
-      <div class="member-name">${s.member}</div>
-      <div class="runs-val">${s.totalRuns}</div>
-      <div class="prize-val">${PRIZES[i]||""}</div>
-    </div>`;
+  const rows=scores.map((s,i)=>{
+    const bc=i===0?"r1":i===1?"r2":i===2?"r3":"rn";
+    return `<div class="lbr"><div><div class="rb ${bc}">${i<3?MEDALS[i]:i+1}</div></div><div class="mn">${s.member}</div><div class="rv">${s.totalRuns}</div><div class="pv">${PRIZES[i]||""}</div></div>`;
   }).join("");
-  document.getElementById(containerId).innerHTML = `
-    <div class="leaderboard">
-      <div class="lb-header"><div>Rank</div><div>Name</div><div style="text-align:right">Runs</div><div style="text-align:right">Prize</div></div>
-      ${rows}
-    </div>`;
+  document.getElementById(id).innerHTML=`<div class="lb"><div class="lbh"><div>Rank</div><div>Name</div><div style="text-align:right">Runs</div><div style="text-align:right">Prize</div></div>${rows}</div>`;
 }
 
-function fillScTable(tableId, scores) {
-  const tbody = document.getElementById(tableId);
-  // Keep header row, replace data rows
-  const header = tbody.querySelector("tr.sc-col-head");
-  tbody.innerHTML = "";
-  tbody.appendChild(header);
-
-  scores.forEach((s, i) => {
-    const cls = ROW_CLASSES[i] || "sc-r8";
-    const prize = PRIZES[i] || "";
-    const tr = document.createElement("tr");
-    tr.className = cls;
-    tr.innerHTML = `
-      <td style="text-align:center;font-weight:700;border:1px solid #d0d8e8">${i+1}</td>
-      <td style="font-weight:${i<3?700:500};border:1px solid #d0d8e8">${s.member}</td>
-      <td style="text-align:center;font-weight:700;border:1px solid #d0d8e8">${s.totalRuns}</td>
-      <td style="text-align:center;font-weight:600;color:${i<3?"#1a6e2e":"#888"};border:1px solid #d0d8e8">${prize}</td>`;
-    tbody.appendChild(tr);
+function fillScTable(tid,scores){
+  const tbl=document.getElementById(tid);
+  const hdr=tbl.querySelector("tr");
+  tbl.innerHTML="";tbl.appendChild(hdr);
+  scores.forEach((s,i)=>{
+    const cls=ROW_CLS[i]||"scr8";
+    const tr=document.createElement("tr");tr.className=cls;
+    // ALL text black, only prize column gets green
+    tr.innerHTML=`<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${i+1}</td>`+
+      `<td style="font-weight:${i<3?700:500};border:1px solid #cdd5e0;color:#111">${s.member}</td>`+
+      `<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${s.totalRuns}</td>`+
+      `<td style="text-align:center;font-weight:600;border:1px solid #cdd5e0;color:${i<3?"#15803d":"#888"}">${PRIZES[i]||""}</td>`;
+    tbl.appendChild(tr);
   });
 }
 
-async function generateImage() {
-  if (!_db || !_db.groupA?.length) {
-    showToast("⚠️ Refresh scores first"); return;
-  }
-  const date = new Date().toLocaleDateString("en-IN", {day:"numeric",month:"short",year:"numeric"});
-  document.getElementById("sc-game-label").textContent = `${_db.lastGame||"Latest update"} • ${date}`;
-  fillScTable("sc-table-a", _db.groupA);
-  fillScTable("sc-table-b", _db.groupB);
-
-  showToast("⏳ Generating image...");
-  await new Promise(r => setTimeout(r, 300));
-
-  try {
-    const card = document.getElementById("share-card");
-    _canvas = await html2canvas(card, {
-      scale: 2.5,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      width: 460,
-    });
-
-    const wrap = document.getElementById("wa-preview-wrap");
-    wrap.innerHTML = "";
-    const img = document.createElement("img");
-    img.src = _canvas.toDataURL("image/png");
-    img.style.cssText = "max-width:100%;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.3)";
-    wrap.appendChild(img);
-
-    document.getElementById("btn-dl").style.display = "flex";
-    showToast("✅ Image ready — click Download!");
-  } catch(e) {
-    showToast("❌ Image failed: " + e.message);
-    console.error(e);
-  }
+async function genImg(){
+  if(!_db||!_db.groupA?.length){toast("⚠️ Refresh scores first");return}
+  const date=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+  document.getElementById("sc-gl").textContent=`${_db.lastGame||"Latest"} • ${date}`;
+  fillScTable("sc-ta",_db.groupA);
+  fillScTable("sc-tb",_db.groupB);
+  toast("⏳ Generating image...");
+  await new Promise(r=>setTimeout(r,300));
+  try{
+    _canvas=await html2canvas(document.getElementById("share-card"),{scale:2.5,useCORS:true,backgroundColor:"#ffffff",logging:false,width:480});
+    const w=document.getElementById("waw");w.innerHTML="";
+    const img=document.createElement("img");
+    img.src=_canvas.toDataURL("image/png");
+    img.style.cssText="max-width:100%;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.3)";
+    w.appendChild(img);
+    document.getElementById("btn-dl").style.display="flex";
+    toast("✅ Image ready — click Download!");
+  }catch(e){toast("❌ Failed: "+e.message);console.error(e)}
 }
 
-function downloadImage() {
-  if (!_canvas) { showToast("Generate image first"); return; }
-  const date = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
-  const a = document.createElement("a");
-  a.download = `IPL-Tracker-${date}.png`;
-  a.href = _canvas.toDataURL("image/png");
-  a.click();
-  showToast("⬇️ Saved! Now share in your WhatsApp group.");
+function dlImg(){
+  if(!_canvas){toast("Generate image first");return}
+  const date=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
+  const a=document.createElement("a");a.download=`IPL-${date}.png`;a.href=_canvas.toDataURL("image/png");a.click();
+  toast("⬇️ Saved! Share it in your WhatsApp group.");
 }
 
-function openWAGroup(e) {
-  e.preventDefault();
-  const link = "PASTE_YOUR_WHATSAPP_GROUP_INVITE_LINK_HERE";
-  if (link.startsWith("PASTE")) {
-    showToast("⚙️ Set your group link in the server .env file");
-    return;
-  }
-  window.open(link, "_blank");
+async function sendWA(){
+  try{
+    const r=await fetch("/api/send-whatsapp",{method:"POST"});
+    const d=await r.json();
+    toast(d.status==="sent"?"📲 WhatsApp text sent to all numbers!":"⚠️ "+d.message);
+  }catch(e){toast("❌ Send failed")}
 }
 
-async function loadScores() {
-  try {
-    const res = await fetch("/api/scores");
-    _db = await res.json();
-    if (_db.lastUpdated) {
-      const d = new Date(_db.lastUpdated);
-      document.getElementById("last-update").innerHTML =
-        `Updated<br>${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
-    } else {
-      document.getElementById("last-update").textContent = "No data yet";
+async function toggleAutoSend(){
+  try{
+    const r=await fetch("/api/toggle-auto-send",{method:"POST"});
+    const d=await r.json();
+    updateToggleBtn(d.autoSendEnabled);
+    toast(d.autoSendEnabled?"✅ Auto-send ENABLED — sends every evening":"❌ Auto-send DISABLED");
+  }catch(e){toast("❌ Toggle failed")}
+}
+
+function updateToggleBtn(on){
+  const b=document.getElementById("btn-toggle");
+  b.textContent=on?"⏰ Auto-Send: ON":"⏰ Auto-Send: OFF";
+  b.className="btoggle "+(on?"on":"off");
+}
+
+async function loadScores(){
+  try{
+    const [sr,st]=await Promise.all([fetch("/api/scores"),fetch("/api/settings")]);
+    _db=await sr.json();const settings=await st.json();
+    if(_db.lastUpdated){
+      const d=new Date(_db.lastUpdated);
+      document.getElementById("lu").innerHTML=`Updated<br>${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
+    }else{document.getElementById("lu").textContent="No data yet"}
+    renderLB(_db.groupA,"lb-a");
+    renderLB(_db.groupB,"lb-b");
+    updateToggleBtn(settings.autoSendEnabled);
+    if(!settings.hasRecipients){
+      document.getElementById("auto-box").innerHTML=`<strong>⏰ Auto WhatsApp:</strong> Add phone numbers to <code>WHATSAPP_RECIPIENTS</code> in Render environment settings to enable automatic nightly messages. Format: <code>919876543210:apikey</code>`;
     }
-    renderLeaderboard(_db.groupA, "lb-a-content");
-    renderLeaderboard(_db.groupB, "lb-b-content");
-  } catch(e) {
-    document.getElementById("last-update").textContent = "Error";
-  }
+  }catch(e){document.getElementById("lu").textContent="Error"}
 }
 
-async function refreshScores() {
-  const btn = document.getElementById("btn-refresh");
-  const spin = document.getElementById("ref-spin");
-  btn.disabled = true; spin.style.display = "block";
-  showToast("⏳ Fetching IPL 2026 scores...");
-  try {
-    await fetch("/api/refresh", { method: "POST" });
-    setTimeout(async () => {
-      await loadScores();
-      btn.disabled = false; spin.style.display = "none";
-      showToast("✅ Scores updated!");
-    }, 35000);
-  } catch(e) {
-    showToast("❌ Refresh failed");
-    btn.disabled = false; spin.style.display = "none";
-  }
+async function refreshScores(){
+  const btn=document.getElementById("btn-ref"),sp=document.getElementById("rspin");
+  btn.disabled=true;sp.style.display="block";
+  toast("⏳ Fetching live IPL 2026 scores...");
+  try{
+    await fetch("/api/refresh",{method:"POST"});
+    setTimeout(async()=>{await loadScores();btn.disabled=false;sp.style.display="none";toast("✅ Scores updated!")},35000);
+  }catch(e){toast("❌ Refresh failed");btn.disabled=false;sp.style.display="none"}
 }
 
 loadScores();
