@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: ipl-friends-tracker
+    env: node
+    buildCommand: npm install
+    startCommand: node src/server.js
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: WHATSAPP_RECIPIENTS
+        sync: false

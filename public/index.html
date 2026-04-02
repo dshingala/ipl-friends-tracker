@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏏 IPL Friends Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #f5c842;
+    --silver: #b0b8c1;
+    --bronze: #cd7f32;
+    --bg: #0a0f1a;
+    --surface: #111827;
+    --card: #1a2235;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f4ff;
+    --muted: #8494a9;
+    --accent: #3b82f6;
+    --green: #22c55e;
+    --ipl-blue: #1e3a8a;
+    --ipl-gold: #fbbf24;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0a1628 0%, #1e3a8a 50%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1rem;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-inner {
+    max-width: 900px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 28px; }
+  .logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 1px; color: var(--ipl-gold); }
+  .logo-sub { font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
+  .last-update { font-size: 11px; color: var(--muted); text-align: right; }
+
+  /* ── Main ── */
+  main { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+  /* ── Stats row ── */
+  .stats-row {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-bottom: 1.5rem;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; text-align: center;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.5px; }
+  .stat-val.gold { color: var(--ipl-gold); }
+  .stat-val.green { color: var(--green); }
+  .stat-val.blue { color: #60a5fa; }
+
+  /* ── Action buttons ── */
+  .actions {
+    display: flex; gap: 10px; margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+  .btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    border: none; cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-green { background: #16a34a; color: white; }
+  .btn-green:hover { background: #15803d; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .spinner { display: none; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; gap: 2px; margin-bottom: 1.5rem; background: var(--card); border-radius: 10px; padding: 4px; }
+  .tab {
+    flex: 1; padding: 8px; font-size: 13px; font-weight: 500;
+    border: none; background: none; color: var(--muted); cursor: pointer;
+    border-radius: 7px; transition: all 0.15s; font-family: inherit;
+  }
+  .tab.active { background: var(--accent); color: white; }
+
+  /* ── Group section ── */
+  .group-section { display: none; }
+  .group-section.active { display: block; }
+  .group-title {
+    font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+    letter-spacing: 1px; color: var(--ipl-gold);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* ── Leaderboard ── */
+  .leaderboard { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+  .lb-header {
+    background: var(--ipl-blue);
+    display: grid; grid-template-columns: 44px 1fr 80px 80px;
+    padding: 10px 16px; font-size: 11px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: rgba(255,255,255,0.6);
+  }
+  .lb-row {
+    background: var(--surface);
+    display: grid; grid-template-columns: 44px 1fr 80px 80px;
+    padding: 13px 16px; align-items: center;
+    border-top: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  .lb-row:hover { background: var(--card); }
+  .lb-row.rank1 { background: rgba(245,200,66,0.06); }
+  .lb-row.rank2 { background: rgba(176,184,193,0.04); }
+  .lb-row.rank3 { background: rgba(205,127,50,0.04); }
+  .rank-badge {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600;
+  }
+  .rank-badge.g { background: rgba(245,200,66,0.15); color: var(--gold); }
+  .rank-badge.s { background: rgba(176,184,193,0.15); color: var(--silver); }
+  .rank-badge.b { background: rgba(205,127,50,0.15); color: var(--bronze); }
+  .rank-badge.n { background: rgba(255,255,255,0.05); color: var(--muted); font-size: 13px; }
+  .member-name { font-weight: 500; font-size: 15px; }
+  .runs-val { text-align: right; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.5px; color: var(--ipl-gold); }
+  .prize-val { text-align: right; font-size: 13px; font-weight: 600; color: var(--green); }
+
+  /* ── WhatsApp preview ── */
+  .wa-box {
+    background: #0a1f0f; border: 1px solid #16a34a33;
+    border-radius: 14px; padding: 1rem 1.25rem; margin-bottom: 1rem;
+  }
+  .wa-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #4ade80; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .wa-msg { font-family: monospace; font-size: 13px; line-height: 1.7; color: #d1fae5; white-space: pre-wrap; word-break: break-word; }
+
+  /* ── No data state ── */
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    background: var(--card); border-radius: 14px;
+    border: 1px dashed var(--border); margin-bottom: 1.5rem;
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+  .empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--muted); letter-spacing: 1px; }
+  .empty-sub { font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem;
+    background: #1a2235; border: 1px solid var(--border);
+    color: var(--text); padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; transform: translateY(80px); opacity: 0;
+    transition: all 0.3s; z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: #16a34a55; }
+  .toast.error { border-color: #ef444455; }
+
+  /* ── Setup info ── */
+  .setup-tip {
+    background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2);
+    border-radius: 12px; padding: 14px 16px; font-size: 13px;
+    color: #93c5fd; line-height: 1.7; margin-bottom: 1.5rem;
+  }
+  .setup-tip a { color: #60a5fa; }
+
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: repeat(3,1fr); }
+    .stat-val { font-size: 22px; }
+    .lb-header, .lb-row { grid-template-columns: 36px 1fr 60px 70px; padding: 10px 12px; }
+    .actions { flex-direction: column; }
+    .btn { justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">🏏</div>
+      <div>
+        <div class="logo-text">IPL Friends Tracker</div>
+        <div class="logo-sub">T20 WORLD CUP 2026</div>
+      </div>
+    </div>
+    <div class="last-update" id="last-update">Loading...</div>
+  </div>
+</header>
+
+<main>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total Fund</div><div class="stat-val gold">$750</div></div>
+    <div class="stat-card"><div class="stat-label">Prize Pool</div><div class="stat-val green">$500</div></div>
+    <div class="stat-card"><div class="stat-label">Party Fund</div><div class="stat-val blue">$250</div></div>
+  </div>
+
+  <div class="setup-tip" id="setup-tip" style="display:none">
+    ⚙️ <strong>First time?</strong> Click <strong>Refresh Scores</strong> to fetch live IPL data.
+    Then <a href="#setup">follow the setup guide</a> below to enable automatic WhatsApp messages.
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="btn-refresh" onclick="refreshScores()">
+      <span id="refresh-spinner" class="spinner"></span>
+      🔄 Refresh Scores
+    </button>
+    <button class="btn btn-green" id="btn-wa" onclick="sendWhatsApp()">
+      📲 Send to WhatsApp
+    </button>
+    <button class="btn btn-outline" onclick="previewMessage()">
+      👁️ Preview Message
+    </button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('a')">Group A (7)</button>
+    <button class="tab" onclick="switchTab('b')">Group B (8)</button>
+    <button class="tab" onclick="switchTab('wa')">WhatsApp</button>
+  </div>
+
+  <!-- Group A -->
+  <div class="group-section active" id="tab-a">
+    <div id="lb-a-content"></div>
+  </div>
+
+  <!-- Group B -->
+  <div class="group-section" id="tab-b">
+    <div id="lb-b-content"></div>
+  </div>
+
+  <!-- WhatsApp preview tab -->
+  <div class="group-section" id="tab-wa">
+    <div class="wa-box">
+      <div class="wa-label">📱 WhatsApp message preview</div>
+      <div class="wa-msg" id="wa-preview">Click "Preview Message" to generate...</div>
+    </div>
+    <button class="btn btn-green" style="width:100%;justify-content:center" onclick="copyWA()">📋 Copy to clipboard</button>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PRIZES = ["$125","$75","$50"];
+const MEDALS = ["🥇","🥈","🥉"];
+
+function showToast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = `toast show ${type}`;
+  setTimeout(() => t.className = "toast", 3000);
+}
+
+function switchTab(name) {
+  document.querySelectorAll(".group-section").forEach(el => el.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
+  document.getElementById(`tab-${name}`).classList.add("active");
+  document.querySelectorAll(".tab")[["a","b","wa"].indexOf(name)].classList.add("active");
+}
+
+function renderLeaderboard(scores, containerId) {
+  if (!scores || !scores.length) {
+    document.getElementById(containerId).innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🏏</div>
+        <div class="empty-title">No scores yet</div>
+        <div class="empty-sub">Click "Refresh Scores" to fetch live IPL data</div>
+      </div>`;
+    return;
+  }
+
+  const rows = scores.map((s, i) => {
+    const badgeClass = i===0?"g":i===1?"s":i===2?"b":"n";
+    const rankLabel = i<3 ? MEDALS[i] : i+1;
+    const rowClass = i===0?"rank1":i===1?"rank2":i===2?"rank3":"";
+    const prize = PRIZES[i] || "";
+    return `<div class="lb-row ${rowClass}">
+      <div><div class="rank-badge ${badgeClass}">${rankLabel}</div></div>
+      <div class="member-name">${s.member}</div>
+      <div class="runs-val">${s.totalRuns}</div>
+      <div class="prize-val">${prize}</div>
+    </div>`;
+  }).join("");
+
+  document.getElementById(containerId).innerHTML = `
+    <div class="leaderboard">
+      <div class="lb-header">
+        <div>Rank</div><div>Name</div>
+        <div style="text-align:right">Runs</div>
+        <div style="text-align:right">Prize</div>
+      </div>
+      ${rows}
+    </div>`;
+}
+
+async function loadScores() {
+  try {
+    const res = await fetch("/api/scores");
+    const db = await res.json();
+
+    if (db.lastUpdated) {
+      const d = new Date(db.lastUpdated);
+      document.getElementById("last-update").textContent =
+        `Updated: ${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
+    } else {
+      document.getElementById("last-update").textContent = "Not updated yet";
+      document.getElementById("setup-tip").style.display = "block";
+    }
+
+    renderLeaderboard(db.groupA, "lb-a-content");
+    renderLeaderboard(db.groupB, "lb-b-content");
+  } catch(e) {
+    document.getElementById("last-update").textContent = "Error loading";
+  }
+}
+
+async function refreshScores() {
+  const btn = document.getElementById("btn-refresh");
+  const spinner = document.getElementById("refresh-spinner");
+  btn.disabled = true;
+  spinner.style.display = "block";
+
+  try {
+    const res = await fetch("/api/refresh", { method: "POST" });
+    const data = await res.json();
+    showToast("⏳ Fetching scores... this takes ~30 seconds");
+
+    // Poll for update
+    setTimeout(async () => {
+      await loadScores();
+      btn.disabled = false;
+      spinner.style.display = "none";
+      showToast("✅ Scores updated!");
+    }, 35000);
+  } catch(e) {
+    showToast("❌ Refresh failed — check console", "error");
+    btn.disabled = false;
+    spinner.style.display = "none";
+  }
+}
+
+async function sendWhatsApp() {
+  const btn = document.getElementById("btn-wa");
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/send-whatsapp", { method: "POST" });
+    const data = await res.json();
+    if (data.status === "sent") {
+      showToast("📲 WhatsApp message sent to group!");
+    } else {
+      showToast(`⚠️ ${data.message}`, "error");
+    }
+  } catch(e) {
+    showToast("❌ Send failed", "error");
+  }
+  btn.disabled = false;
+}
+
+async function previewMessage() {
+  switchTab("wa");
+  const res = await fetch("/api/preview-message");
+  const data = await res.json();
+  document.getElementById("wa-preview").textContent = data.message;
+}
+
+function copyWA() {
+  const text = document.getElementById("wa-preview").textContent;
+  navigator.clipboard.writeText(text).then(() => showToast("📋 Copied to clipboard!"));
+}
+
+// Load on start
+loadScores();
+</script>
+</body>
+</html>
