@@ -1,129 +1,129 @@
 // ============================================================
-//  IPL FRIENDS TRACKER — MAIN SERVER
-//  • Serves the live dashboard at http://localhost:3000
-//  • Runs a cron job after each IPL match day to fetch scores
-//  • Sends WhatsApp updates automatically
+//  IPL FRIENDS TRACKER — SERVER v4
+//  New in this version:
+//  • Auto-send toggle (enable/disable from dashboard)
+//  • GitHub tarun7r/Cricket-API integration for live scores
+//  • Correct scores pre-loaded from scores.json baseline
 // ============================================================
 
 try { require("dotenv").config({ path: require("path").join(__dirname, "../.env") }); } catch(_) {}
 
 const express = require("express");
-const cron = require("node-cron");
-const path = require("path");
-const { getAllIPLData } = require("./scraper");
+const cron    = require("node-cron");
+const path    = require("path");
+const axios   = require("axios");
+
+const { getAllIPLData }       = require("./scraper");
 const { calculateAllScores } = require("./calculator");
 const { sendToGroup, buildWhatsAppMessage } = require("./whatsapp");
-const { loadDB, updateScores } = require("./db");
+const { loadDB, updateScores, saveDB }      = require("./db");
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, "../public")));
 app.use(express.json());
 
-// ── API: get current scores ──────────────────────────────────
+// ── GET /api/scores ──────────────────────────────────────────
 app.get("/api/scores", (req, res) => {
+  res.json(loadDB());
+});
+
+// ── GET /api/settings ────────────────────────────────────────
+app.get("/api/settings", (req, res) => {
   const db = loadDB();
-  res.json(db);
+  res.json({
+    autoSendEnabled: db.autoSendEnabled !== false, // default true
+    whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || "",
+    hasRecipients: !!(process.env.WHATSAPP_RECIPIENTS),
+  });
 });
 
-// ── API: manually trigger a score refresh ───────────────────
+// ── POST /api/toggle-auto-send ────────────────────────────────
+app.post("/api/toggle-auto-send", (req, res) => {
+  const db = loadDB();
+  const current = db.autoSendEnabled !== false;
+  db.autoSendEnabled = !current;
+  saveDB(db);
+  console.log(`[AutoSend] Toggled to: ${db.autoSendEnabled}`);
+  res.json({ autoSendEnabled: db.autoSendEnabled });
+});
+
+// ── POST /api/refresh ─────────────────────────────────────────
 app.post("/api/refresh", async (req, res) => {
-  console.log("[Manual] Refresh triggered via API");
-  try {
-    res.json({ status: "started", message: "Refreshing scores in background..." });
-    await runUpdate(req.body?.gameLabel || "Manual update");
-  } catch (e) {
-    console.error("[Manual] Error:", e.message);
-  }
+  res.json({ status: "started" });
+  const label = req.body?.gameLabel ||
+    `Game — ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"})}`;
+  await runUpdate(label, false); // false = don't auto-send on manual refresh
 });
 
-// ── API: send WhatsApp message manually ─────────────────────
+// ── POST /api/send-whatsapp ───────────────────────────────────
 app.post("/api/send-whatsapp", async (req, res) => {
   const db = loadDB();
-  if (!db.groupA?.length) {
-    return res.json({ status: "error", message: "No scores loaded yet. Refresh first." });
-  }
+  if (!db.groupA?.length) return res.json({ status:"error", message:"No scores yet. Refresh first." });
   try {
     await sendToGroup(db.groupA, db.groupB, db.lastGame || "Latest");
-    res.json({ status: "sent", message: "WhatsApp message sent!" });
-  } catch (e) {
-    res.json({ status: "error", message: e.message });
+    res.json({ status:"sent" });
+  } catch(e) {
+    res.json({ status:"error", message: e.message });
   }
 });
 
-// ── API: preview WhatsApp message ───────────────────────────
+// ── GET /api/preview-message ──────────────────────────────────
 app.get("/api/preview-message", (req, res) => {
   const db = loadDB();
-  if (!db.groupA?.length) {
-    return res.json({ message: "No data yet. Click Refresh first." });
-  }
-  const msg = buildWhatsAppMessage(db.groupA, db.groupB, db.lastGame || "Latest");
-  res.json({ message: msg });
+  if (!db.groupA?.length) return res.json({ message:"No data yet." });
+  res.json({ message: buildWhatsAppMessage(db.groupA, db.groupB, db.lastGame || "Latest") });
 });
 
-// ── Core update function ─────────────────────────────────────
-async function runUpdate(label) {
-  console.log(`\n[Update] Starting score update: ${label}`);
+// ── Core update ───────────────────────────────────────────────
+async function runUpdate(label, autoSend = true) {
+  console.log(`\n[Update] ${label}`);
   try {
     const topBatters = await getAllIPLData();
     const { groupA, groupB } = calculateAllScores(topBatters);
-    const gameLabel = label || `Game — ${new Date().toLocaleDateString("en-IN")}`;
+    updateScores(groupA, groupB, label);
+    console.log("[Update] Scores saved");
 
-    updateScores(groupA, groupB, gameLabel);
-    console.log("[Update] Scores saved to DB");
-
-    // Send WhatsApp
-    if (process.env.WHATSAPP_RECIPIENTS) {
-      await sendToGroup(groupA, groupB, gameLabel);
-    } else {
-      console.log("[Update] No WhatsApp recipients configured — skipping send");
+    const db = loadDB();
+    const shouldSend = autoSend && db.autoSendEnabled !== false && process.env.WHATSAPP_RECIPIENTS;
+    if (shouldSend) {
+      console.log("[Update] Sending WhatsApp update...");
+      await sendToGroup(groupA, groupB, label);
+    } else if (autoSend) {
+      console.log("[Update] Auto-send skipped (disabled or no recipients configured)");
     }
-
-    console.log("[Update] Done!\n");
-  } catch (e) {
-    console.error("[Update] Error during update:", e.message);
+    console.log("[Update] Done\n");
+  } catch(e) {
+    console.error("[Update] Error:", e.message);
   }
 }
 
-// ── Cron schedule: runs at 11:30 PM IST every day ────────────
-// IPL matches typically end by 11 PM IST
-// 11:30 PM IST = 18:00 UTC
+// ── Cron: 11:30 PM IST (18:00 UTC) — after evening matches ───
 cron.schedule("0 18 * * *", () => {
-  const dateStr = new Date().toLocaleDateString("en-IN", {
-    day: "numeric", month: "short"
-  });
-  runUpdate(`Game — ${dateStr}`);
+  const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+  runUpdate(`Game — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
 
-// Also run at 3:30 PM IST for afternoon matches (if any)
+// ── Cron: 3:30 PM IST (10:00 UTC) — afternoon double-headers ─
 cron.schedule("0 10 * * *", () => {
-  const dateStr = new Date().toLocaleDateString("en-IN", {
-    day: "numeric", month: "short"
-  });
-  runUpdate(`Afternoon game — ${dateStr}`);
+  const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+  runUpdate(`Afternoon — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
 
-// ── Start server ─────────────────────────────────────────────
+// ── Start ─────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  console.log(`
-  ╔══════════════════════════════════════╗
-  ║  🏏 IPL Friends Tracker is LIVE!     ║
-  ║  Dashboard: http://localhost:${PORT}    ║
-  ╚══════════════════════════════════════╝
-  
-  Cron jobs scheduled:
-  • 11:30 PM IST — after evening matches
-  •  3:30 PM IST — after afternoon matches
-  `);
-
-  // Load existing DB on startup
   const db = loadDB();
-  if (db.lastUpdated) {
-    console.log(`[Startup] Last update: ${db.lastUpdated}`);
-  } else {
-    console.log("[Startup] No data yet. Visit the dashboard and click Refresh.");
-  }
+  const autoState = db.autoSendEnabled !== false ? "ON ✅" : "OFF ❌";
+  console.log(`
+╔══════════════════════════════════════════╗
+║  🏏  IPL Friends Tracker — LIVE          ║
+║  http://localhost:${PORT}                   ║
+╠══════════════════════════════════════════╣
+║  Cron: 11:30 PM IST  (evening games)     ║
+║  Cron:  3:30 PM IST  (afternoon games)   ║
+║  Auto WhatsApp send: ${autoState.padEnd(20)}║
+╚══════════════════════════════════════════╝`);
 });
 
 module.exports = app;
