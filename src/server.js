@@ -1,9 +1,5 @@
 // ============================================================
-//  IPL FRIENDS TRACKER — SERVER v4
-//  New in this version:
-//  • Auto-send toggle (enable/disable from dashboard)
-//  • GitHub tarun7r/Cricket-API integration for live scores
-//  • Correct scores pre-loaded from scores.json baseline
+//  IPL FRIENDS TRACKER — SERVER (Final)
 // ============================================================
 
 try { require("dotenv").config({ path: require("path").join(__dirname, "../.env") }); } catch(_) {}
@@ -11,12 +7,11 @@ try { require("dotenv").config({ path: require("path").join(__dirname, "../.env"
 const express = require("express");
 const cron    = require("node-cron");
 const path    = require("path");
-const axios   = require("axios");
 
 const { getAllIPLData }       = require("./scraper");
 const { calculateAllScores } = require("./calculator");
 const { sendToGroup, buildWhatsAppMessage } = require("./whatsapp");
-const { loadDB, updateScores, saveDB }      = require("./db");
+const { loadDB, saveDB, updateScores }      = require("./db");
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -33,19 +28,17 @@ app.get("/api/scores", (req, res) => {
 app.get("/api/settings", (req, res) => {
   const db = loadDB();
   res.json({
-    autoSendEnabled: db.autoSendEnabled !== false, // default true
-    whatsappGroupLink: process.env.WHATSAPP_GROUP_LINK || "",
-    hasRecipients: !!(process.env.WHATSAPP_RECIPIENTS),
+    autoSendEnabled: db.autoSendEnabled !== false,
+    hasRecipients:   !!(process.env.WHATSAPP_RECIPIENTS),
+    hasCricApiKey:   !!(process.env.CRICAPI_KEY),
   });
 });
 
 // ── POST /api/toggle-auto-send ────────────────────────────────
 app.post("/api/toggle-auto-send", (req, res) => {
   const db = loadDB();
-  const current = db.autoSendEnabled !== false;
-  db.autoSendEnabled = !current;
+  db.autoSendEnabled = !(db.autoSendEnabled !== false);
   saveDB(db);
-  console.log(`[AutoSend] Toggled to: ${db.autoSendEnabled}`);
   res.json({ autoSendEnabled: db.autoSendEnabled });
 });
 
@@ -54,7 +47,7 @@ app.post("/api/refresh", async (req, res) => {
   res.json({ status: "started" });
   const label = req.body?.gameLabel ||
     `Game — ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"})}`;
-  await runUpdate(label, false); // false = don't auto-send on manual refresh
+  await runUpdate(label, false);
 });
 
 // ── POST /api/send-whatsapp ───────────────────────────────────
@@ -69,62 +62,41 @@ app.post("/api/send-whatsapp", async (req, res) => {
   }
 });
 
-// ── GET /api/preview-message ──────────────────────────────────
-app.get("/api/preview-message", (req, res) => {
-  const db = loadDB();
-  if (!db.groupA?.length) return res.json({ message:"No data yet." });
-  res.json({ message: buildWhatsAppMessage(db.groupA, db.groupB, db.lastGame || "Latest") });
-});
-
 // ── POST /api/admin-update ────────────────────────────────────
-// Admin manually enters member totals from Google scorecard
-// Body: { gameLabel: "Game 7 — 3 Apr", groupA: {Rohit:310,...}, groupB: {...} }
+// Emergency manual override — enter totals directly
 app.post("/api/admin-update", (req, res) => {
   const { gameLabel, groupA: newA, groupB: newB } = req.body || {};
   if (!newA && !newB) return res.json({ status:"error", message:"No data provided" });
-
   const db = loadDB();
-
   if (newA) {
-    for (const member of db.groupA) {
-      if (newA[member.member] !== undefined) {
-        member.totalRuns = parseInt(newA[member.member]);
-      }
+    for (const m of db.groupA) {
+      if (newA[m.member] !== undefined) m.totalRuns = parseInt(newA[m.member]);
     }
     db.groupA.sort((a,b) => b.totalRuns - a.totalRuns);
   }
   if (newB) {
-    for (const member of db.groupB) {
-      if (newB[member.member] !== undefined) {
-        member.totalRuns = parseInt(newB[member.member]);
-      }
+    for (const m of db.groupB) {
+      if (newB[m.member] !== undefined) m.totalRuns = parseInt(newB[m.member]);
     }
     db.groupB.sort((a,b) => b.totalRuns - a.totalRuns);
   }
-
-  db.lastGame = gameLabel || db.lastGame;
+  db.lastGame    = gameLabel || db.lastGame;
   db.lastUpdated = new Date().toISOString();
   saveDB(db);
-  console.log(`[Admin] Manual update: ${db.lastGame}`);
-  res.json({ status:"saved", lastGame: db.lastGame, groupA: db.groupA, groupB: db.groupB });
+  res.json({ status:"saved", groupA: db.groupA, groupB: db.groupB });
 });
 
-// ── Core update ───────────────────────────────────────────────
+// ── Core update function ──────────────────────────────────────
 async function runUpdate(label, autoSend = true) {
   console.log(`\n[Update] ${label}`);
   try {
-    const topBatters = await getAllIPLData();
+    const topBatters      = await getAllIPLData();
     const { groupA, groupB } = calculateAllScores(topBatters);
     updateScores(groupA, groupB, label);
-    console.log("[Update] Scores saved");
 
     const db = loadDB();
-    const shouldSend = autoSend && db.autoSendEnabled !== false && process.env.WHATSAPP_RECIPIENTS;
-    if (shouldSend) {
-      console.log("[Update] Sending WhatsApp update...");
+    if (autoSend && db.autoSendEnabled !== false && process.env.WHATSAPP_RECIPIENTS) {
       await sendToGroup(groupA, groupB, label);
-    } else if (autoSend) {
-      console.log("[Update] Auto-send skipped (disabled or no recipients configured)");
     }
     console.log("[Update] Done\n");
   } catch(e) {
@@ -132,31 +104,38 @@ async function runUpdate(label, autoSend = true) {
   }
 }
 
-// ── Cron: 11:30 PM IST (18:00 UTC) — after evening matches ───
+// ── Cron: auto-update after every IPL match ──────────────────
+// Evening matches end ~11 PM IST → update at 11:30 PM IST (18:00 UTC)
 cron.schedule("0 18 * * *", () => {
   const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
-  runUpdate(`Game — ${d}`, true);
+  runUpdate(`Evening match — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
 
-// ── Cron: 3:30 PM IST (10:00 UTC) — afternoon double-headers ─
-cron.schedule("0 10 * * *", () => {
+// Afternoon matches end ~7 PM IST → update at 7:30 PM IST (14:00 UTC)
+cron.schedule("0 14 * * *", () => {
   const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
-  runUpdate(`Afternoon — ${d}`, true);
+  runUpdate(`Afternoon match — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
 
 // ── Start ─────────────────────────────────────────────────────
 app.listen(PORT, () => {
-  const db = loadDB();
-  const autoState = db.autoSendEnabled !== false ? "ON ✅" : "OFF ❌";
+  const db  = loadDB();
+  const key = process.env.CRICAPI_KEY ? "✅ SET" : "❌ NOT SET — add at cricketdata.org";
+  const wa  = process.env.WHATSAPP_RECIPIENTS ? "✅ SET" : "❌ NOT SET";
   console.log(`
 ╔══════════════════════════════════════════╗
-║  🏏  IPL Friends Tracker — LIVE          ║
+║  🏏  IPL Friends Tracker is LIVE         ║
 ║  http://localhost:${PORT}                   ║
 ╠══════════════════════════════════════════╣
-║  Cron: 11:30 PM IST  (evening games)     ║
-║  Cron:  3:30 PM IST  (afternoon games)   ║
-║  Auto WhatsApp send: ${autoState.padEnd(20)}║
-╚══════════════════════════════════════════╝`);
+║  CRICAPI_KEY:          ${key.padEnd(18)}║
+║  WHATSAPP_RECIPIENTS:  ${wa.padEnd(18)}║
+║  Auto-send:            ${(db.autoSendEnabled!==false?"ON ✅":"OFF ❌").padEnd(18)}║
+╚══════════════════════════════════════════╝
+  `);
+  if (!process.env.CRICAPI_KEY) {
+    console.log("  ⚠️  Get your FREE API key at: https://cricketdata.org/signup.aspx");
+    console.log("  Then add CRICAPI_KEY in Render → Environment settings\n");
+  }
 });
 
 module.exports = app;

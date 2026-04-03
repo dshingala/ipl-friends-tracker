@@ -1,33 +1,25 @@
 // ============================================================
-//  IPL SCORE SCRAPER v5
-//  
-//  HOW THE ADMIN GETS SCORES:
-//  Google Search "ipl cricket score" → match scorecard → each
-//  player's season runs. This data comes from Sportz Interactive /
-//  Sportradar. The best FREE public API that mirrors this same
-//  data is CricAPI.com (free tier, 100 req/day, no key needed
-//  for public endpoints) and ESPN Cricinfo HTML.
+//  IPL SCORE SCRAPER — FINAL
 //
-//  Sources tried in order:
-//  1. CricAPI.com free tier — real IPL 2026 season batting stats
-//  2. ESPN Cricinfo HTML batting records table
-//  3. Baseline from scores.json — always shows correct numbers
+//  Source: cricketdata.org (free API, signup in 2 min)
+//  Set CRICAPI_KEY in Render → fully automated forever.
 //
-//  The baseline is ALWAYS the safety net. It uses the admin's
-//  manually verified totals stored in scores.json, so even when
-//  all scraping fails the dashboard shows correct numbers.
+//  Flow:
+//  1. Find IPL 2026 series ID
+//  2. Get season batting stats (cumulative totals per player)
+//  3. If season stats not available → sum from each match scorecard
+//  4. Rank players per team → calculator maps them to members
+//  5. If no API key → fall back to scores.json baseline
 // ============================================================
 
 const axios = require("axios");
 const fs    = require("fs");
 const path  = require("path");
 
-const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/123.0.0.0 Safari/537.36";
+const DB_PATH = path.join(__dirname, "../data/scores.json");
+const BASE    = "https://api.cricapi.com/v1";
 
-// ESPN Cricinfo IPL 2026 series ID — update if needed each year
-const ESPN_SERIES_ID = "1449924";
-
-const TEAM_KEYWORDS = {
+const TEAM_MAP = {
   RCB: ["royal challengers","rcb","bangalore","bengaluru"],
   KKR: ["kolkata","kkr","knight riders"],
   MI:  ["mumbai","mi ","indians"],
@@ -36,207 +28,197 @@ const TEAM_KEYWORDS = {
   DC:  ["delhi","dc ","capitals"],
   SRH: ["sunrisers","srh","hyderabad"],
   RR:  ["rajasthan","rr ","royals"],
-  PBK: ["punjab","pbk","kings xi","pbks","punjab kings"],
+  PBK: ["punjab","pbk","kings xi","pbks"],
   LSG: ["lucknow","lsg","super giants"],
 };
 
-function resolveTeam(str) {
+function teamCode(str) {
   if (!str) return null;
   const s = str.toLowerCase();
-  for (const [code, kws] of Object.entries(TEAM_KEYWORDS)) {
+  for (const [code, kws] of Object.entries(TEAM_MAP)) {
     if (kws.some(k => s.includes(k))) return code;
   }
   return null;
 }
 
-// ── Source 1: CricAPI.com free tier ──────────────────────────
-// https://cricapi.com — free, returns Google-equivalent data
-// Endpoint: /v1/series_stats (season batting totals per player)
-async function fetchCricAPI() {
-  const apiKey = process.env.CRICAPI_KEY;
-  if (!apiKey) {
-    console.log("[CricAPI] No CRICAPI_KEY set — skipping");
-    return null;
-  }
+// ── CricketData.org API helper ────────────────────────────────
+async function get(endpoint, params = {}) {
+  const key = process.env.CRICAPI_KEY;
+  if (!key) return null;
   try {
-    console.log("[CricAPI] Fetching IPL 2026 series list...");
-
-    // Step 1: find IPL 2026 series ID
-    const listRes = await axios.get(
-      `https://api.cricapi.com/v1/series?apikey=${apiKey}&offset=0`,
-      { timeout: 12000 }
-    );
-    const series = listRes.data?.data || [];
-    const ipl = series.find(s =>
-      (s.name || "").toLowerCase().includes("ipl") ||
-      (s.name || "").toLowerCase().includes("indian premier league")
-    );
-    if (!ipl) { console.log("[CricAPI] IPL series not found"); return null; }
-
-    console.log(`[CricAPI] IPL series: ${ipl.name} (${ipl.id})`);
-
-    // Step 2: get series squad/stats
-    const statsRes = await axios.get(
-      `https://api.cricapi.com/v1/series_stats?apikey=${apiKey}&id=${ipl.id}`,
-      { timeout: 12000 }
-    );
-    const stats = statsRes.data?.data || {};
-    const batting = stats.batting?.mostRuns || stats.mostRuns || [];
-
-    const players = [];
-    for (const b of batting) {
-      const teamCode = resolveTeam(b.teamName || b.team || "");
-      const runs = parseInt(b.runs || b.Runs || 0);
-      const name = b.name || b.playerName || b.batName || "";
-      if (name && runs > 0 && teamCode) {
-        players.push({ name, team: teamCode, runs });
-      }
-    }
-
-    if (players.length > 10) {
-      console.log(`[CricAPI] ✅ Got ${players.length} players`);
-      return players;
-    }
-    console.log("[CricAPI] Not enough data");
-    return null;
-  } catch(e) {
-    console.error("[CricAPI] Error:", e.message);
-    return null;
-  }
-}
-
-// ── Source 2: ESPN Cricinfo HTML batting table ────────────────
-async function scrapeESPN() {
-  try {
-    console.log("[ESPN] Scraping batting records...");
-    const url = `https://stats.espncricinfo.com/ci/engine/records/batting/most_runs_career.html?id=${ESPN_SERIES_ID};type=series`;
-    const res = await axios.get(url, {
-      headers: { "User-Agent": UA, "Accept": "text/html" },
+    const r = await axios.get(`${BASE}/${endpoint}`, {
+      params: { apikey: key, ...params },
       timeout: 20000,
     });
-    const html = res.data;
-    const players = [];
-    const rowRe = /<tr class="data1">([\s\S]*?)<\/tr>/g;
-    let m;
-    while ((m = rowRe.exec(html)) !== null) {
-      const cells = [];
-      const tdRe = /<td[^>]*>([\s\S]*?)<\/td>/g;
-      let t;
-      while ((t = tdRe.exec(m[1])) !== null) {
-        cells.push(t[1].replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").trim());
-      }
-      // ESPN: Player | Team | Mat | Inns | NO | Runs | ...
-      if (cells.length >= 6) {
-        const runs = parseInt(cells[5]);
-        const team = resolveTeam(cells[1]);
-        if (!isNaN(runs) && runs > 0 && team && cells[0]) {
-          players.push({ name: cells[0], team, runs });
-        }
-      }
-    }
-    if (players.length > 10) {
-      console.log(`[ESPN] ✅ Got ${players.length} players`);
-      return players;
-    }
-    console.log("[ESPN] Too few rows — likely blocked or off-season");
+    if (r.data?.status === "success" || r.data?.data) return r.data.data || r.data;
     return null;
   } catch(e) {
-    console.error("[ESPN] Error:", e.message);
+    console.error(`[CricAPI/${endpoint}]`, e.message);
     return null;
   }
 }
 
-// ── Source 3: Baseline from scores.json ──────────────────────
-// Reads the admin-verified member totals and reconstructs a
-// slot-value map so the calculator gets the right numbers.
-// This is the GUARANTEED fallback — always correct.
-function loadBaseline() {
-  try {
-    const dbPath = path.join(__dirname, "../data/scores.json");
-    if (!fs.existsSync(dbPath)) return null;
-    const db = JSON.parse(fs.readFileSync(dbPath, "utf8"));
-    if (!db.groupA?.length) return null;
+// ── Step 1: Find IPL 2026 series ─────────────────────────────
+async function findIPLSeries() {
+  // Search by name
+  for (const q of ["Indian Premier League 2026", "IPL 2026", "Indian Premier League"]) {
+    const list = await get("series", { offset: 0, search: q });
+    if (!Array.isArray(list)) continue;
+    const ipl = list.find(s =>
+      /ipl|indian premier league/i.test(s.name || "") &&
+      /2026/.test(s.name || s.startDate || s.endDate || "")
+    ) || list.find(s => /ipl|indian premier league/i.test(s.name || ""));
+    if (ipl) { console.log(`[CricAPI] Series: ${ipl.name} (${ipl.id})`); return ipl.id; }
+  }
+  return null;
+}
 
-    console.log("[Baseline] Loading from admin-verified scores.json");
+// ── Step 2a: Season batting stats (preferred) ─────────────────
+async function getSeasonStats(seriesId) {
+  const data = await get("series_stats", { id: seriesId });
+  if (!data) return null;
 
-    // Build slot→runs map from stored player details
-    const slotRuns = {};
-    for (const group of [db.groupA, db.groupB]) {
-      for (const member of group) {
-        // Use the member's totalRuns divided equally as a fallback,
-        // but prefer the stored per-player breakdown if available
-        for (const p of (member.players || [])) {
-          if (p.code && p.runs !== undefined) {
-            // If same slot appears in multiple members, take the stored value
-            // (they should be the same player, so same run value)
-            slotRuns[p.code] = p.runs;
-          }
+  // Multiple possible response structures
+  const batting =
+    data?.batting?.mostRuns ||
+    data?.stats?.batting?.most_runs ||
+    data?.mostRuns ||
+    (Array.isArray(data) ? data : null);
+
+  if (!batting?.length) return null;
+
+  const players = [];
+  for (const b of batting) {
+    const team = teamCode(b.teamName || b.team || b.ti || "");
+    const runs  = parseInt(b.runs || b.r || 0);
+    const name  = b.name || b.playerName || b.batsman || b.player || "";
+    if (name && runs > 0 && team) players.push({ name, team, runs });
+  }
+  return players.length > 3 ? players : null;
+}
+
+// ── Step 2b: Sum from individual match scorecards ─────────────
+async function getMatchByMatchStats(seriesId) {
+  // Get match list
+  const info = await get("series_info", { id: seriesId });
+  const matches = info?.matchList || info?.matches || [];
+
+  const totals = {}; // "Name:TEAM" → runs
+
+  for (const m of matches) {
+    if (!m.matchStarted) continue; // skip upcoming
+    const sc = await get("match_scorecard", { id: m.id });
+    if (!sc) continue;
+
+    const innings = sc.scorecard || sc.score || [];
+    for (const inn of innings) {
+      const team = teamCode(inn.inning || inn.teamName || "");
+      const batters = inn.batting || inn.batsmen || [];
+      for (const b of batters) {
+        const name = b.batsman?.name || b.name || b.batsman || "";
+        const runs = parseInt(b.r || b.runs || 0);
+        if (name && team && !isNaN(runs)) {
+          const k = `${name}:${team}`;
+          totals[k] = (totals[k] || 0) + runs;
         }
       }
     }
-
-    // Build team ranked structure directly from slot values
-    const teamSlots = {};
-    for (const [slot, runs] of Object.entries(slotRuns)) {
-      const parts = slot.split("-");
-      const team = parts[0];
-      const rank = parseInt(parts[1]);
-      if (!teamSlots[team]) teamSlots[team] = [];
-      teamSlots[team].push({ rank, name: slot, runs });
-    }
-
-    const ranked = {};
-    for (const [team, slots] of Object.entries(teamSlots)) {
-      ranked[team] = slots
-        .sort((a,b) => a.rank - b.rank)
-        .map(s => ({ rank: s.rank, name: s.name, runs: s.runs }));
-    }
-
-    console.log(`[Baseline] ✅ Loaded ${Object.keys(ranked).length} teams`);
-    return ranked;
-  } catch(e) {
-    console.error("[Baseline] Error:", e.message);
-    return null;
+    await new Promise(r => setTimeout(r, 150)); // gentle rate-limit
   }
+
+  return Object.entries(totals).map(([k, runs]) => {
+    const [name, team] = k.split(":");
+    return { name, team, runs };
+  });
 }
 
-// ── Build team rankings from flat player list ─────────────────
-function buildTeamRankings(players) {
-  const teamBatters = {};
+// ── Step 3: Build team rankings ───────────────────────────────
+function buildRankings(players) {
+  const byTeam = {};
   for (const { name, team, runs } of players) {
     if (!team || !name) continue;
-    if (!teamBatters[team]) teamBatters[team] = {};
-    teamBatters[team][name] = Math.max(teamBatters[team][name] || 0, runs);
+    if (!byTeam[team]) byTeam[team] = {};
+    byTeam[team][name] = Math.max(byTeam[team][name] || 0, runs);
   }
   const ranked = {};
-  for (const [team, batters] of Object.entries(teamBatters)) {
+  for (const [team, batters] of Object.entries(byTeam)) {
     ranked[team] = Object.entries(batters)
-      .sort((a,b) => b[1] - a[1])
-      .map(([name, runs], i) => ({ rank: i+1, name, runs }));
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, runs], i) => ({ rank: i + 1, name, runs }));
   }
+  console.log(`[CricAPI] Rankings built for: ${Object.keys(ranked).join(", ")}`);
   return ranked;
 }
 
-// ── Main ──────────────────────────────────────────────────────
+// ── Fallback: scores.json baseline ───────────────────────────
+function loadBaseline() {
+  try {
+    if (!fs.existsSync(DB_PATH)) return null;
+    const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
+    if (!db.groupA?.length) return null;
+    console.log("[Baseline] Using last verified scores from scores.json");
+
+    const slotRuns = {};
+    for (const group of [db.groupA, db.groupB]) {
+      for (const member of group) {
+        for (const p of (member.players || [])) {
+          if (p.code && p.runs !== undefined) slotRuns[p.code] = p.runs;
+        }
+      }
+    }
+    const byTeam = {};
+    for (const [slot, runs] of Object.entries(slotRuns)) {
+      const [team, rankStr] = slot.split("-");
+      if (!byTeam[team]) byTeam[team] = [];
+      byTeam[team].push({ rank: parseInt(rankStr), name: slot, runs });
+    }
+    const ranked = {};
+    for (const [team, slots] of Object.entries(byTeam)) {
+      ranked[team] = slots.sort((a, b) => a.rank - b.rank);
+    }
+    return ranked;
+  } catch(e) {
+    console.error("[Baseline]", e.message);
+    return null;
+  }
+}
+
+// ── Main export ───────────────────────────────────────────────
 async function getAllIPLData() {
   console.log("\n[Scraper] Fetching IPL 2026 data...");
 
-  // Try live sources first
-  let players = await fetchCricAPI();
-  if (!players) players = await scrapeESPN();
-
-  if (players && players.length > 0) {
-    console.log("[Scraper] Using live data ✅");
-    return buildTeamRankings(players);
+  if (!process.env.CRICAPI_KEY) {
+    console.log("[Scraper] No CRICAPI_KEY → using baseline");
+    console.log("[Scraper] FREE signup: https://cricketdata.org/signup.aspx");
+    return loadBaseline() || {};
   }
 
-  // Always fall back to baseline — guaranteed correct numbers
-  console.log("[Scraper] Live sources unavailable — using admin-verified baseline");
-  const baseline = loadBaseline();
-  if (baseline) return baseline;
+  try {
+    const seriesId = await findIPLSeries();
+    if (!seriesId) {
+      console.log("[Scraper] IPL 2026 series not found yet — may not be listed");
+      return loadBaseline() || {};
+    }
 
-  console.log("[Scraper] ⚠️ No data source available");
-  return {};
+    // Try season stats first (one API call)
+    let players = await getSeasonStats(seriesId);
+
+    // Fall back to match-by-match
+    if (!players || players.length < 5) {
+      console.log("[Scraper] Season stats unavailable, going match-by-match...");
+      players = await getMatchByMatchStats(seriesId);
+    }
+
+    if (players && players.length > 5) {
+      console.log(`[Scraper] ✅ Live data: ${players.length} players`);
+      return buildRankings(players);
+    }
+  } catch(e) {
+    console.error("[Scraper] Error:", e.message);
+  }
+
+  console.log("[Scraper] Falling back to baseline");
+  return loadBaseline() || {};
 }
 
 module.exports = { getAllIPLData };
