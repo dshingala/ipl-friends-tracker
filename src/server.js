@@ -105,14 +105,18 @@ async function runUpdate(label, autoSend = true) {
 }
 
 // ── Cron: auto-update after every IPL match ──────────────────
-// Evening matches end ~11 PM IST → update at 11:30 PM IST (18:00 UTC)
-cron.schedule("0 18 * * *", () => {
+// All times in IST (Asia/Kolkata) = Winnipeg CDT + 10.5 hrs
+//
+// Evening matches (7:30 PM IST start, ~11 PM IST end):
+//   → Fetch at 11:30 PM IST = 1:00 PM CDT Winnipeg ✅
+cron.schedule("30 23 * * *", () => {
   const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
   runUpdate(`Evening match — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
 
-// Afternoon matches end ~7 PM IST → update at 7:30 PM IST (14:00 UTC)
-cron.schedule("0 14 * * *", () => {
+// Afternoon matches (3:30 PM IST start, ~7:30 PM IST end):
+//   → Fetch at 8:00 PM IST = 9:30 AM CDT Winnipeg ✅
+cron.schedule("0 20 * * *", () => {
   const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"});
   runUpdate(`Afternoon match — ${d}`, true);
 }, { timezone: "Asia/Kolkata" });
