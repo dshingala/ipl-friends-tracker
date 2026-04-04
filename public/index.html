@@ -16,24 +16,36 @@ header{background:linear-gradient(135deg,#0a1628,#1e3a8a 50%,#0a1628);border-bot
 .ls{font-size:11px;color:var(--mut)}
 #lu{font-size:11px;color:var(--mut);text-align:right;line-height:1.5}
 main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
-.tabs{display:flex;gap:2px;margin-bottom:1.25rem;background:var(--card);border-radius:10px;padding:4px}
-.tab{flex:1;padding:9px 4px;font-size:12px;font-weight:500;border:none;background:none;color:var(--mut);cursor:pointer;border-radius:7px;font-family:inherit;text-align:center;transition:all .15s}
-.tab.active{background:var(--acc);color:white}
-.gs{display:none}.gs.active{display:block}
 .sr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
 .sc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:12px 16px;text-align:center}
 .sl{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
 .sv{font-family:'Bebas Neue',sans-serif;font-size:26px}
 .sv.g{color:var(--igold)}.sv.n{color:var(--grn)}.sv.b{color:#60a5fa}
+/* Buttons */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:8px;font-size:14px;font-weight:500;border:none;cursor:pointer;font-family:inherit;text-decoration:none;white-space:nowrap;transition:all .15s}
-.bp{background:var(--acc);color:white}.bwa{background:#25d366;color:white}.bg{background:#16a34a;color:white}.bo{background:#d97706;color:white}.bpu{background:var(--pur);color:white}
+.bp{background:var(--acc);color:white}.bp:hover{background:#2563eb}
+.bwa{background:#25d366;color:white}.bwa:hover{background:#1ebe5d}
+.bg{background:#16a34a;color:white}.bg:hover{background:#15803d}
+.bo{background:#d97706;color:white}.bo:hover{background:#b45309}
+.bpu{background:var(--pur);color:white}.bpu:hover{background:#6d28d9}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .spin{display:none;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
-.rbtns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem}
-.tog{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--bdr);cursor:pointer;font-family:inherit}
+/* Top action bar */
+.actbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem}
+.tog{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--bdr);cursor:pointer;font-family:inherit;transition:all .15s}
 .tog.on{background:rgba(34,197,94,.12);color:#4ade80;border-color:rgba(34,197,94,.3)}
 .tog.off{background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3)}
+/* Status box */
+.status-box{border-radius:10px;padding:10px 14px;margin-bottom:1.25rem;font-size:13px;line-height:1.6;display:flex;align-items:center;gap:10px}
+.status-box.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#86efac}
+.status-box.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);color:#fcd34d}
+/* Tabs */
+.tabs{display:flex;gap:2px;margin-bottom:1.25rem;background:var(--card);border-radius:10px;padding:4px}
+.tab{flex:1;padding:9px 4px;font-size:12px;font-weight:500;border:none;background:none;color:var(--mut);cursor:pointer;border-radius:7px;font-family:inherit;text-align:center;transition:all .15s}
+.tab.active{background:var(--acc);color:white}
+.gs{display:none}.gs.active{display:block}
+/* Leaderboard */
 .lb{border-radius:14px;overflow:hidden;border:1px solid var(--bdr);margin-bottom:1.25rem}
 .lbh{background:var(--iblue);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:10px 16px;font-size:11px;text-transform:uppercase;color:rgba(255,255,255,.6);letter-spacing:.07em}
 .lbr{background:var(--sur);display:grid;grid-template-columns:44px 1fr 80px 80px;padding:12px 16px;align-items:center;border-top:1px solid var(--bdr)}
@@ -41,6 +53,7 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
 .rb{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600}
 .rb1{background:rgba(168,208,245,.15);color:#a8d0f5}.rb2{background:rgba(152,220,190,.15);color:#98dcc0}.rb3{background:rgba(220,180,245,.15);color:#dcb4f5}.rbn{background:rgba(255,255,255,.05);color:var(--mut)}
 .mn{font-weight:500;font-size:15px}.rv{text-align:right;font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--igold)}.pv{text-align:right;font-size:13px;font-weight:600;color:var(--grn)}
+/* Manual update tab */
 .how{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:14px 18px;margin-bottom:1.25rem;font-size:13px;color:#93c5fd;line-height:1.9}
 .how strong{color:#60a5fa}.how ol{padding-left:1.2rem;margin-top:4px}
 .gl-row{display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap}
@@ -55,11 +68,13 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
 .mr input{width:82px;padding:5px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--sur);color:var(--txt);font-size:15px;font-family:'Bebas Neue',sans-serif;text-align:center;letter-spacing:.5px}
 .mr input:focus{outline:none;border-color:var(--acc)}
 .mr input.ch{border-color:var(--grn);background:rgba(34,197,94,.08)}
+/* Image tab */
+.it{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:1rem}
 .waw{background:#ddd6cc;border-radius:14px;padding:20px;display:flex;justify-content:center;margin-bottom:1rem;min-height:80px;align-items:center}
 .ia{display:flex;gap:8px;flex-wrap:wrap}
-.it{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:1rem}
 .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a2235;border:1px solid var(--bdr);color:var(--txt);padding:12px 20px;border-radius:10px;font-size:14px;transform:translateY(80px);opacity:0;transition:all .3s;z-index:999;max-width:300px}
 .toast.show{transform:translateY(0);opacity:1}
+/* Share card */
 #sc{position:absolute;left:-9999px;top:0;width:480px;background:#fff;font-family:'Segoe UI',Arial,sans-serif;color:#111}
 .scb{background:linear-gradient(135deg,#0f2a5e,#1e4db7);padding:18px 22px 14px;color:#fff;text-align:center}
 .sct{font-size:20px;font-weight:800;margin-bottom:3px}.scs{font-size:12px;opacity:.75}.scg{font-size:11px;opacity:.6;margin-top:3px}
@@ -73,7 +88,11 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
 .spb{display:flex;justify-content:space-around;background:#f0f5ff;border:1px solid #c8d5f0;border-radius:5px;padding:9px 6px;margin-bottom:6px}
 .spi{text-align:center}.spa{font-size:13px;font-weight:700;color:#1e3a8a;display:block}.spl{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
 .sft{text-align:center;font-size:9px;color:#94a3b8;padding:4px 0 10px}
-@media(max-width:560px){.gg{grid-template-columns:1fr}.sr .sv{font-size:22px}.lbh,.lbr{grid-template-columns:36px 1fr 56px 64px;padding:9px 10px}.rbtns{flex-direction:column}.btn,.tog{width:100%;justify-content:center}}
+@media(max-width:560px){
+  .gg{grid-template-columns:1fr}.sv{font-size:22px}
+  .lbh,.lbr{grid-template-columns:36px 1fr 56px 64px;padding:9px 10px}
+  .actbar{flex-direction:column}.btn,.tog{width:100%;justify-content:center}
+}
 </style>
 </head>
 <body>
@@ -86,49 +105,53 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
     <div id="lu">Loading...</div>
   </div>
 </header>
+
 <main>
   <div class="sr">
     <div class="sc"><div class="sl">Total Fund</div><div class="sv g">$750</div></div>
     <div class="sc"><div class="sl">Prize Pool</div><div class="sv n">$500</div></div>
     <div class="sc"><div class="sl">Party Fund</div><div class="sv b">$250</div></div>
   </div>
+
+  <!-- TOP ACTION BAR — always visible -->
+  <div class="actbar">
+    <button class="btn bp" id="btn-ref" onclick="refreshScores()">
+      <span id="rspin" class="spin"></span>🔄 Refresh Scores
+    </button>
+    <button class="btn bwa" onclick="sendWA()">📲 Send to WhatsApp</button>
+    <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">💬 Open Group</a>
+    <button class="btn bo" onclick="sw('img')">📸 Image</button>
+    <button class="tog" id="tog" onclick="toggleAuto()">⏰ Auto: ...</button>
+  </div>
+
+  <!-- Status indicator -->
+  <div class="status-box warn" id="status-box">
+    <span>⏳</span><span id="status-txt">Loading...</span>
+  </div>
+
   <div class="tabs">
     <button class="tab active" onclick="sw('a')">🏆 Group A</button>
     <button class="tab" onclick="sw('b')">🏆 Group B</button>
-    <button class="tab" onclick="sw('upd')">✏️ Update Scores</button>
+    <button class="tab" onclick="sw('upd')">✏️ Manual Update</button>
     <button class="tab" onclick="sw('img')">📸 Share</button>
   </div>
 
-  <div class="gs active" id="tab-a">
-    <div class="rbtns">
-      <button class="btn bwa" onclick="sendWA()">📲 Send to WhatsApp</button>
-      <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">💬 Open Group</a>
-      <button class="tog" id="tog" onclick="toggleAuto()">⏰ Auto: ...</button>
-    </div>
-    <div id="lb-a"></div>
-  </div>
+  <div class="gs active" id="tab-a"><div id="lb-a"></div></div>
+  <div class="gs" id="tab-b"><div id="lb-b"></div></div>
 
-  <div class="gs" id="tab-b">
-    <div class="rbtns">
-      <button class="btn bwa" onclick="sendWA()">📲 Send to WhatsApp</button>
-      <a class="btn bwa" href="https://chat.whatsapp.com/IYPAPvSV3H6CAIsgRF9Xtg?mode=gi_t" target="_blank" rel="noopener">💬 Open Group</a>
-    </div>
-    <div id="lb-b"></div>
-  </div>
-
+  <!-- Manual update tab (backup when scraping fails) -->
   <div class="gs" id="tab-upd">
     <div class="how">
-      <strong>📊 How to update after each match — takes 2 minutes:</strong>
+      <strong>✏️ Manual Update — use this if Refresh Scores shows wrong data</strong>
       <ol>
-        <li>Google → <strong>"ipl cricket score"</strong> → click today's match → <strong>Scorecard</strong></li>
-        <li>Find each player's <strong>season total runs</strong> (not just today's score)</li>
-        <li>Type them below → click <strong>Save &amp; Update</strong></li>
-        <li>Leaderboard updates + WhatsApp sends automatically ✅</li>
+        <li>Google → <strong>"ipl cricket score"</strong> → today's match → <strong>Scorecard</strong></li>
+        <li>Find each player's <strong>cumulative season total</strong> runs</li>
+        <li>Type below → <strong>Save &amp; Update</strong> → leaderboard updates instantly ✅</li>
       </ol>
-      <div style="margin-top:8px;font-size:12px;opacity:.8">💡 Only change players who batted today. Others keep their current total automatically.</div>
+      <div style="margin-top:6px;font-size:12px;opacity:.8">Only change numbers that updated today. Others stay the same.</div>
     </div>
     <div class="gl-row">
-      <input id="gl" type="text" placeholder="Game label e.g. Game 7 — 3 Apr">
+      <input id="gl" type="text" placeholder="e.g. Game 8 — 4 Apr 2026">
       <button class="btn bpu" id="savebtn" onclick="saveUpdate()"><span id="sspin" class="spin"></span>💾 Save &amp; Update</button>
     </div>
     <div class="gg">
@@ -137,8 +160,9 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
     </div>
   </div>
 
+  <!-- Image tab -->
   <div class="gs" id="tab-img">
-    <div class="it">Click <strong>Generate</strong> → <strong>Download</strong> → share in your WhatsApp group. Or click <strong>Send Text</strong> to send the text version automatically.</div>
+    <div class="it">Click <strong>Generate</strong> → <strong>Download</strong> → share in WhatsApp. Or <strong>Send Text</strong> to auto-send the text version.</div>
     <div class="waw" id="waw"><div style="color:#888;font-size:13px">Click Generate to preview</div></div>
     <div class="ia">
       <button class="btn bo" onclick="genImg()">🖼️ Generate</button>
@@ -149,6 +173,7 @@ main{max-width:860px;margin:0 auto;padding:1.25rem 1rem}
   </div>
 </main>
 
+<!-- Off-screen share card -->
 <div id="sc">
   <div class="scb"><div class="sct">🏏 IPL Friends Tracker — 2026</div><div class="scs">T20 Indian Premier League</div><div class="scg" id="scgl"></div></div>
   <div class="scbd">
@@ -183,17 +208,26 @@ function sw(n){
   ["a","b","upd","img"].forEach((x,i)=>{if(x===n)document.querySelectorAll(".tab")[i].classList.add("active")});
 }
 
-function renderLB(scores,id){
-  if(!scores?.length){
-    document.getElementById(id).innerHTML='<div style="text-align:center;padding:3rem 1rem;color:var(--mut)">No scores yet — go to ✏️ Update Scores</div>';return;
-  }
-  document.getElementById(id).innerHTML='<div class="lb"><div class="lbh"><div>Rank</div><div>Name</div><div style="text-align:right">Runs</div><div style="text-align:right">Prize</div></div>'
-    +scores.map((s,i)=>`<div class="lbr"><div><div class="rb ${i===0?"rb1":i===1?"rb2":i===2?"rb3":"rbn"}">${i<3?M[i]:i+1}</div></div><div class="mn">${s.member}</div><div class="rv">${s.totalRuns}</div><div class="pv">${P[i]||""}</div></div>`).join("")
-    +'</div>';
+function setStatus(ok, msg) {
+  const box = document.getElementById("status-box");
+  const txt = document.getElementById("status-txt");
+  box.className = "status-box " + (ok ? "ok" : "warn");
+  box.querySelector("span").textContent = ok ? "✅" : "⚠️";
+  txt.textContent = msg;
 }
 
-function buildInputs(scores,cid){
-  document.getElementById(cid).innerHTML=scores.map(s=>`
+function renderLB(scores, id) {
+  if (!scores?.length) {
+    document.getElementById(id).innerHTML = '<div style="text-align:center;padding:3rem 1rem;color:var(--mut)">No scores — click 🔄 Refresh Scores or use ✏️ Manual Update</div>';
+    return;
+  }
+  document.getElementById(id).innerHTML = '<div class="lb"><div class="lbh"><div>Rank</div><div>Name</div><div style="text-align:right">Runs</div><div style="text-align:right">Prize</div></div>'
+    + scores.map((s,i) => `<div class="lbr"><div><div class="rb ${i===0?"rb1":i===1?"rb2":i===2?"rb3":"rbn"}">${i<3?M[i]:i+1}</div></div><div class="mn">${s.member}</div><div class="rv">${s.totalRuns}</div><div class="pv">${P[i]||""}</div></div>`).join("")
+    + '</div>';
+}
+
+function buildInputs(scores, cid) {
+  document.getElementById(cid).innerHTML = scores.map(s => `
     <div class="mr">
       <span class="mrn">${s.member}</span>
       <input type="number" id="f-${s.member.replace(/\s+/g,'_')}" value="${s.totalRuns}" min="0" max="9999"
@@ -201,96 +235,147 @@ function buildInputs(scores,cid){
     </div>`).join("");
 }
 
-async function saveUpdate(){
-  if(!_db){toast("Loading... try again");return}
-  const btn=document.getElementById("savebtn"),sp=document.getElementById("sspin");
-  btn.disabled=true;sp.style.display="block";
-  const label=document.getElementById("gl").value.trim()||
-    `Game — ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`;
-  const members={};
-  for(const m of [...(_db.groupA||[]),...(_db.groupB||[])]){
-    const el=document.getElementById("f-"+m.member.replace(/\s+/g,"_"));
-    if(el) members[m.member]=parseInt(el.value)||0;
+async function refreshScores() {
+  const btn = document.getElementById("btn-ref");
+  const sp  = document.getElementById("rspin");
+  btn.disabled = true; sp.style.display = "block";
+  setStatus(false, "Fetching live IPL 2026 scores from Google...");
+  toast("🔄 Fetching live scores — takes ~20 seconds...", 20000);
+
+  try {
+    await fetch("/api/refresh", { method: "POST" });
+    // Poll for result after 25 seconds
+    setTimeout(async () => {
+      await load();
+      btn.disabled = false; sp.style.display = "none";
+    }, 25000);
+  } catch(e) {
+    toast("❌ Refresh failed");
+    btn.disabled = false; sp.style.display = "none";
   }
-  try{
-    const r=await fetch("/api/update",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({gameLabel:label,members})});
-    const d=await r.json();
-    if(d.status==="saved"){
-      await load();sw("a");
-      toast("✅ Scores saved & leaderboard updated!",4000);
-      document.querySelectorAll(".ch").forEach(e=>e.classList.remove("ch"));
-    }else toast("❌ "+d.message);
-  }catch(e){toast("❌ "+e.message)}
-  btn.disabled=false;sp.style.display="none";
 }
 
-function fillT(tid,scores){
-  const t=document.getElementById(tid),h=t.querySelector("tr");
-  t.innerHTML="";t.appendChild(h);
-  scores.forEach((s,i)=>{
-    const tr=document.createElement("tr");tr.className=RC[i]||"sr8";
-    tr.innerHTML=`<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${i+1}</td>`+
-      `<td style="font-weight:${i<3?700:500};border:1px solid #cdd5e0;color:#111">${s.member}</td>`+
-      `<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${s.totalRuns}</td>`+
-      `<td style="text-align:center;font-weight:600;border:1px solid #cdd5e0;color:${i<3?"#15803d":"#888"}">${P[i]||""}</td>`;
+async function saveUpdate() {
+  if (!_db) { toast("Loading... try again"); return; }
+  const btn = document.getElementById("savebtn"), sp = document.getElementById("sspin");
+  btn.disabled = true; sp.style.display = "block";
+
+  const label = document.getElementById("gl").value.trim() ||
+    `Game — ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`;
+  const members = {};
+  for (const m of [...(_db.groupA||[]),...(_db.groupB||[])]) {
+    const el = document.getElementById("f-" + m.member.replace(/\s+/g,"_"));
+    if (el) members[m.member] = parseInt(el.value) || 0;
+  }
+  try {
+    const r = await fetch("/api/update", {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ gameLabel: label, members }),
+    });
+    const d = await r.json();
+    if (d.status === "saved") {
+      await load(); sw("a");
+      toast("✅ Scores saved!", 4000);
+    } else toast("❌ " + d.message);
+  } catch(e) { toast("❌ " + e.message); }
+  btn.disabled = false; sp.style.display = "none";
+}
+
+function fillT(tid, scores) {
+  const t = document.getElementById(tid), h = t.querySelector("tr");
+  t.innerHTML = ""; t.appendChild(h);
+  scores.forEach((s,i) => {
+    const tr = document.createElement("tr"); tr.className = RC[i]||"sr8";
+    tr.innerHTML = `<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${i+1}</td>`
+      + `<td style="font-weight:${i<3?700:500};border:1px solid #cdd5e0;color:#111">${s.member}</td>`
+      + `<td style="text-align:center;font-weight:700;border:1px solid #cdd5e0;color:#111">${s.totalRuns}</td>`
+      + `<td style="text-align:center;font-weight:600;border:1px solid #cdd5e0;color:${i<3?"#15803d":"#888"}">${P[i]||""}</td>`;
     t.appendChild(tr);
   });
 }
 
-async function genImg(){
-  if(!_db?.groupA?.length){toast("No scores yet");return}
-  const date=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
-  document.getElementById("scgl").textContent=`${_db.lastGame||"Latest"} • ${date}`;
-  fillT("sc-ta",_db.groupA);fillT("sc-tb",_db.groupB);
-  toast("⏳ Generating...");await new Promise(r=>setTimeout(r,300));
-  try{
-    _cv=await html2canvas(document.getElementById("sc"),{scale:2.5,useCORS:true,backgroundColor:"#fff",logging:false,width:480});
-    const w=document.getElementById("waw");w.innerHTML="";
-    const img=document.createElement("img");img.src=_cv.toDataURL("image/png");
-    img.style.cssText="max-width:100%;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.3)";
+async function genImg() {
+  if (!_db?.groupA?.length) { toast("No scores yet"); return; }
+  const date = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+  document.getElementById("scgl").textContent = `${_db.lastGame||"Latest"} • ${date}`;
+  fillT("sc-ta",_db.groupA); fillT("sc-tb",_db.groupB);
+  toast("⏳ Generating..."); await new Promise(r=>setTimeout(r,300));
+  try {
+    _cv = await html2canvas(document.getElementById("sc"),{scale:2.5,useCORS:true,backgroundColor:"#fff",logging:false,width:480});
+    const w = document.getElementById("waw"); w.innerHTML = "";
+    const img = document.createElement("img"); img.src = _cv.toDataURL("image/png");
+    img.style.cssText = "max-width:100%;border-radius:10px;box-shadow:0 2px 16px rgba(0,0,0,.3)";
     w.appendChild(img);
-    document.getElementById("btn-dl").style.display="inline-flex";
+    document.getElementById("btn-dl").style.display = "inline-flex";
     toast("✅ Ready — tap Download!");
-  }catch(e){toast("❌ "+e.message);console.error(e)}
+  } catch(e) { toast("❌ " + e.message); }
 }
 
-function dlImg(){
-  if(!_cv){toast("Generate first");return}
-  const d=new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
-  const a=document.createElement("a");a.download=`IPL-${d}.png`;a.href=_cv.toDataURL("image/png");a.click();
-  toast("⬇️ Saved! Share in your WhatsApp group.");
+function dlImg() {
+  if (!_cv) { toast("Generate first"); return; }
+  const d = new Date().toLocaleDateString("en-IN",{day:"numeric",month:"short"}).replace(" ","-");
+  const a = document.createElement("a"); a.download = `IPL-${d}.png`; a.href = _cv.toDataURL("image/png"); a.click();
+  toast("⬇️ Saved! Share in WhatsApp.");
 }
 
-async function sendWA(){
-  try{
-    const r=await fetch("/api/send-whatsapp",{method:"POST"});
-    const d=await r.json();
-    toast(d.status==="sent"?"📲 WhatsApp text sent!":"⚠️ "+d.message);
-  }catch(e){toast("❌ Failed")}
+async function sendWA() {
+  try {
+    const r = await fetch("/api/send-whatsapp",{method:"POST"});
+    const d = await r.json();
+    toast(d.status==="sent" ? "📲 WhatsApp text sent!" : "⚠️ "+d.message);
+  } catch(e) { toast("❌ Failed"); }
 }
 
-function setTog(on){const b=document.getElementById("tog");b.textContent=on?"⏰ Auto-Send: ON":"⏰ Auto-Send: OFF";b.className="tog "+(on?"on":"off")}
-
-async function toggleAuto(){
-  try{const r=await fetch("/api/toggle-auto-send",{method:"POST"});const d=await r.json();setTog(d.autoSendEnabled);toast(d.autoSendEnabled?"✅ Auto-send ON":"❌ Auto-send OFF");}catch(e){}
+function setTog(on) {
+  const b = document.getElementById("tog");
+  b.textContent = on ? "⏰ Auto: ON" : "⏰ Auto: OFF";
+  b.className = "tog " + (on ? "on" : "off");
 }
 
-async function load(){
-  try{
-    const [sr,st]=await Promise.all([fetch("/api/scores"),fetch("/api/settings")]);
-    _db=await sr.json();const s=await st.json();
-    if(_db.lastUpdated){
-      const d=new Date(_db.lastUpdated);
-      document.getElementById("lu").innerHTML=`${_db.lastGame||""}<br>${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
-    }else document.getElementById("lu").textContent="No data yet";
-    renderLB(_db.groupA,"lb-a");
-    renderLB(_db.groupB,"lb-b");
-    buildInputs(_db.groupA||[],"inp-a");
-    buildInputs(_db.groupB||[],"inp-b");
-    setTog(s.autoSendEnabled!==false);
-  }catch(e){document.getElementById("lu").textContent="Error"}
+async function toggleAuto() {
+  try {
+    const r = await fetch("/api/toggle-auto-send",{method:"POST"});
+    const d = await r.json(); setTog(d.autoSendEnabled);
+    toast(d.autoSendEnabled ? "✅ Auto-send ON" : "❌ Auto-send OFF");
+  } catch(e) {}
 }
+
+async function load() {
+  try {
+    const [sr, st] = await Promise.all([fetch("/api/scores"), fetch("/api/settings")]);
+    _db = await sr.json(); const s = await st.json();
+
+    if (_db.lastUpdated) {
+      const d = new Date(_db.lastUpdated);
+      const timeStr = d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+      document.getElementById("lu").innerHTML = `${_db.lastGame||""}<br>${timeStr}`;
+
+      // Show status
+      const minsAgo = Math.floor((Date.now() - d.getTime()) / 60000);
+      if (minsAgo < 60) setStatus(true, `Live data — updated ${minsAgo} min ago`);
+      else if (minsAgo < 1440) setStatus(true, `Updated ${Math.floor(minsAgo/60)}h ago — click 🔄 after today's match`);
+      else setStatus(false, `Last updated ${Math.floor(minsAgo/1440)} day(s) ago — click 🔄 Refresh Scores`);
+    } else {
+      document.getElementById("lu").textContent = "No data yet";
+      setStatus(false, "No data yet — click 🔄 Refresh Scores");
+    }
+
+    renderLB(_db.groupA, "lb-a");
+    renderLB(_db.groupB, "lb-b");
+    buildInputs(_db.groupA||[], "inp-a");
+    buildInputs(_db.groupB||[], "inp-b");
+    setTog(s.autoSendEnabled !== false);
+
+    // Set next game label placeholder
+    if (_db.lastGame) {
+      document.getElementById("gl").placeholder = `Next after: ${_db.lastGame}`;
+    }
+  } catch(e) {
+    document.getElementById("lu").textContent = "Error";
+    setStatus(false, "Error loading data");
+  }
+}
+
 load();
 </script>
 </body>
