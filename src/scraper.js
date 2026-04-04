@@ -1,11 +1,8 @@
 // ============================================================
-//  IPL SCRAPER — AXIOS + CHEERIO HTML PARSING
-//  
-//  Strategy: fetch crictracker.com/ipl-orange-cap/ which has
-//  a real HTML table (not JS-rendered) with all season runs.
-//  This is the same page Google indexes for "ipl orange cap".
-//
-//  Falls back to stored scores if fetch fails.
+//  IPL SCRAPER — GOOGLE + BACKUP SOURCES
+//  Scrapes Google search for "IPL 2026 most runs" which shows
+//  a live stats table — same data the admin reads manually.
+//  Falls back to crictracker & espncricinfo if Google blocks.
 // ============================================================
 
 const axios   = require("axios");
@@ -15,200 +12,217 @@ const path    = require("path");
 
 const DB_PATH = path.join(__dirname, "../data/scores.json");
 
-// Team name fragments → our short codes
 const TEAM_MAP = {
   RCB: ["royal challengers","rcb","bengaluru","bangalore"],
   KKR: ["kolkata","kkr","knight riders"],
-  MI:  ["mumbai","mi","indians"],
+  MI:  ["mumbai indians","mi ","mumbai"],
   CSK: ["chennai","csk","super kings"],
-  GT:  ["gujarat","gt","titans"],
-  DC:  ["delhi","dc","capitals"],
+  GT:  ["gujarat","gt ","titans"],
+  DC:  ["delhi","dc ","capitals"],
   SRH: ["sunrisers","srh","hyderabad"],
-  RR:  ["rajasthan","rr","royals"],
-  PBK: ["punjab","pbk","kings xi","pbks","punjab kings"],
+  RR:  ["rajasthan","rr ","royals"],
+  PBK: ["punjab","pbk","pbks","kings xi"],
   LSG: ["lucknow","lsg","super giants"],
 };
 
 function resolveTeam(str) {
   if (!str) return null;
-  const s = str.toLowerCase();
+  const s = " " + str.toLowerCase() + " ";
   for (const [code, kws] of Object.entries(TEAM_MAP)) {
     if (kws.some(k => s.includes(k))) return code;
   }
   return null;
 }
 
-const HEADERS = {
-  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-  "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-  "Accept-Language": "en-US,en;q=0.9",
-  "Accept-Encoding": "gzip, deflate, br",
-  "Cache-Control": "no-cache",
-  "Referer": "https://www.google.com/",
-};
-
-// ── Source 1: crictracker.com Orange Cap page ─────────────────
-// Has a real server-rendered HTML table with season batting stats
-async function scrapeCricTracker() {
-  try {
-    console.log("[Scraper] Fetching crictracker.com orange cap...");
-    const res = await axios.get("https://www.crictracker.com/ipl-orange-cap/", {
-      headers: HEADERS, timeout: 20000, decompress: true,
-    });
-
-    const $ = cheerio.load(res.data);
-    const players = [];
-
-    // Find the stats table — CricTracker uses a standard HTML table
-    $("table").each((_, table) => {
-      const headers = [];
-      $(table).find("th").each((_, th) => {
-        headers.push($(th).text().trim().toLowerCase());
-      });
-
-      // Check if this is the batting runs table
-      if (!headers.includes("r") && !headers.includes("runs")) return;
-
-      const playerIdx = headers.findIndex(h => h === "player" || h === "name" || h === "batsman");
-      const teamIdx   = headers.findIndex(h => h === "team");
-      const runsIdx   = headers.findIndex(h => h === "r" || h === "runs");
-
-      if (runsIdx === -1) return;
-
-      $(table).find("tr").each((_, row) => {
-        const cells = $(row).find("td");
-        if (!cells.length) return;
-
-        const name = playerIdx >= 0 ? $(cells[playerIdx]).text().trim() : $(cells[1]).text().trim();
-        const teamRaw = teamIdx >= 0 ? $(cells[teamIdx]).text().trim() : $(cells[2]).text().trim();
-        const runs = parseInt($(cells[runsIdx]).text().trim()) || 0;
-
-        const team = resolveTeam(teamRaw);
-        if (name && team && runs > 0 && name.length > 2) {
-          players.push({ name, team, runs });
-        }
-      });
-    });
-
-    if (players.length > 5) {
-      console.log(`[Scraper] CricTracker: ${players.length} players found ✅`);
-      return players;
-    }
-
-    // Table was empty (JS-rendered) — try next source
-    console.log("[Scraper] CricTracker table empty (JS-rendered)");
-    return null;
-  } catch(e) {
-    console.error("[Scraper] CricTracker failed:", e.message);
-    return null;
-  }
+// ── Shared fetch helper ───────────────────────────────────────
+async function fetch(url, ua) {
+  return axios.get(url, {
+    timeout: 25000,
+    decompress: true,
+    headers: {
+      "User-Agent": ua || "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Cache-Control": "no-cache",
+      "Referer": "https://www.google.com/",
+    },
+  });
 }
 
-// ── Source 2: Google search "ipl 2026 orange cap most runs" ──
-// Google's search results page shows a structured data box with
-// the top run-scorers table — plain HTML, no JS required.
-async function scrapeGoogleIPL() {
-  try {
-    console.log("[Scraper] Fetching Google IPL stats...");
-    const url = "https://www.google.com/search?q=ipl+2026+orange+cap+most+runs+batting+stats&hl=en&gl=us";
-    const res = await axios.get(url, {
-      headers: {
-        ...HEADERS,
-        "User-Agent": "Mozilla/5.0 (Linux; Android 10; SM-G975U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36",
-      },
-      timeout: 20000, decompress: true,
-    });
+// ── Extract players from any HTML with cheerio ────────────────
+function extractFromHTML(html) {
+  const $ = cheerio.load(html);
+  const players = [];
+  const seen = new Set();
 
-    const $ = cheerio.load(res.data);
-    const players = [];
+  // Strategy 1: Find tables with Player/Team/Runs columns
+  $("table").each((_, table) => {
+    const headers = [];
+    $(table).find("th").each((_, th) => headers.push($(th).text().trim().toLowerCase()));
 
-    // Google shows a "Most Runs" knowledge card with a table
-    // Look for any table with player names and numbers
-    $("table, [data-ved] table, .wEaWsb table").each((_, table) => {
-      $(table).find("tr").each((_, row) => {
-        const cells = $(row).find("td");
-        if (cells.length < 3) return;
+    const pIdx = headers.findIndex(h => /player|name|batsman/i.test(h));
+    const tIdx = headers.findIndex(h => /team/i.test(h));
+    const rIdx = headers.findIndex(h => /^r$|^runs$/i.test(h));
 
-        // Try to find: name (text), team (text with team name), runs (number)
-        let name = "", teamRaw = "", runs = 0;
-        cells.each((i, cell) => {
-          const txt = $(cell).text().trim();
-          const num = parseInt(txt);
-          if (!isNaN(num) && num > 0 && num < 5000) runs = num;
-          else if (resolveTeam(txt)) teamRaw = txt;
-          else if (txt.length > 3 && txt.length < 40 && !/^\d/.test(txt)) name = name || txt;
-        });
+    if (rIdx === -1) return; // not a runs table
 
-        const team = resolveTeam(teamRaw);
-        if (name && team && runs > 0) players.push({ name, team, runs });
-      });
-    });
-
-    if (players.length > 3) {
-      console.log(`[Scraper] Google: ${players.length} players ✅`);
-      return players;
-    }
-    console.log("[Scraper] Google: no structured table found");
-    return null;
-  } catch(e) {
-    console.error("[Scraper] Google failed:", e.message);
-    return null;
-  }
-}
-
-// ── Source 3: ESPN Cricinfo batting records ───────────────────
-async function scrapeESPN() {
-  try {
-    console.log("[Scraper] Fetching ESPN Cricinfo...");
-    const url = "https://stats.espncricinfo.com/ci/engine/records/batting/most_runs_career.html?id=17740;type=tournament";
-    const res = await axios.get(url, { headers: HEADERS, timeout: 20000 });
-    const $ = cheerio.load(res.data);
-    const players = [];
-
-    $("tr.data1").each((_, row) => {
+    $(table).find("tr").each((_, row) => {
       const cells = $(row).find("td");
-      if (cells.length < 6) return;
-      const name    = $(cells[0]).text().trim();
-      const teamRaw = $(cells[1]).text().trim();
-      const runs    = parseInt($(cells[5]).text().trim());
-      const team    = resolveTeam(teamRaw);
-      if (name && team && !isNaN(runs) && runs > 0) {
-        players.push({ name, team, runs });
+      if (cells.length < 3) return;
+
+      // Use column indices if found, else try heuristically
+      const name = pIdx >= 0
+        ? $(cells[pIdx]).text().trim()
+        : $(cells[0]).text().trim() || $(cells[1]).text().trim();
+
+      const teamRaw = tIdx >= 0
+        ? $(cells[tIdx]).text().trim()
+        : $(cells[1]).text().trim() || $(cells[2]).text().trim();
+
+      const runsRaw = rIdx >= 0
+        ? $(cells[rIdx]).text().trim()
+        : (() => {
+            let r = "";
+            cells.each((_, c) => { const t = $(c).text().trim(); if (/^\d{1,4}$/.test(t) && parseInt(t) > 0) r = r || t; });
+            return r;
+          })();
+
+      const runs = parseInt(runsRaw);
+      const team = resolveTeam(teamRaw) || resolveTeam(name);
+      const key = name + team;
+
+      if (name && team && !isNaN(runs) && runs > 0 && runs < 1500 && name.length > 2 && !seen.has(key)) {
+        seen.add(key);
+        players.push({ name: name.replace(/\s+/g, " "), team, runs });
       }
     });
+  });
 
-    if (players.length > 5) {
-      console.log(`[Scraper] ESPN: ${players.length} players ✅`);
-      return players;
-    }
-    console.log("[Scraper] ESPN: not enough rows");
-    return null;
-  } catch(e) {
-    console.error("[Scraper] ESPN failed:", e.message);
-    return null;
+  // Strategy 2: Look for JSON data embedded in script tags
+  if (players.length < 5) {
+    $("script").each((_, s) => {
+      const txt = $(s).html() || "";
+      // Match arrays of player objects
+      const matches = txt.matchAll(/"(?:name|player_name|batsman)"\s*:\s*"([^"]+)"[\s\S]{0,200}?"(?:runs|r)"\s*:\s*(\d+)[\s\S]{0,200}?"(?:team|team_name)"\s*:\s*"([^"]+)"/g);
+      for (const m of matches) {
+        const name = m[1], runs = parseInt(m[2]), team = resolveTeam(m[3]);
+        const key = name + team;
+        if (name && team && runs > 0 && !seen.has(key)) {
+          seen.add(key);
+          players.push({ name, team, runs });
+        }
+      }
+    });
   }
+
+  return players;
+}
+
+// ── Source 1: Google Search ───────────────────────────────────
+async function scrapeGoogle() {
+  // Multiple Google query variations to find the stats table
+  const queries = [
+    "IPL 2026 orange cap most runs batting stats",
+    "IPL 2026 most runs season batting scorecard",
+    "ipl 2026 batting stats most runs player team",
+  ];
+
+  for (const q of queries) {
+    try {
+      console.log(`[Google] Searching: "${q}"`);
+      const url = `https://www.google.com/search?q=${encodeURIComponent(q)}&hl=en&gl=ca&num=10`;
+      const res = await fetch(url,
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+      );
+
+      const players = extractFromHTML(res.data);
+      if (players.length > 5) {
+        console.log(`[Google] ✅ Found ${players.length} players`);
+        return players;
+      }
+
+      // Also look for a direct link to stats page in results and follow it
+      const $ = cheerio.load(res.data);
+      const links = [];
+      $("a[href]").each((_, a) => {
+        const href = $(a).attr("href") || "";
+        const url2 = href.startsWith("/url?q=") ? decodeURIComponent(href.slice(7).split("&")[0]) : href;
+        if (/orange.cap|most.runs|batting.stats/i.test(url2) &&
+            !url2.includes("google") && url2.startsWith("http")) {
+          links.push(url2);
+        }
+      });
+
+      // Follow first promising link
+      for (const link of links.slice(0, 3)) {
+        try {
+          console.log(`[Google] Following: ${link}`);
+          const r2 = await fetch(link);
+          const p2 = extractFromHTML(r2.data);
+          if (p2.length > 5) {
+            console.log(`[Google→Link] ✅ ${p2.length} players from ${link}`);
+            return p2;
+          }
+        } catch(e2) { /* try next */ }
+      }
+    } catch(e) {
+      console.error(`[Google] Failed (${q}):`, e.message);
+    }
+  }
+  return null;
+}
+
+// ── Source 2: Direct cricket stats sites ─────────────────────
+async function scrapeDirectSites() {
+  const sites = [
+    "https://www.crictracker.com/ipl-orange-cap/",
+    "https://www.cricbuzz.com/cricket-series/9237/indian-premier-league-2026/stats",
+    "https://stats.espncricinfo.com/ci/engine/records/batting/most_runs_career.html?id=17740;type=tournament",
+  ];
+
+  for (const url of sites) {
+    try {
+      console.log(`[Direct] Trying: ${url}`);
+      const res = await fetch(url);
+      const players = extractFromHTML(res.data);
+      if (players.length > 5) {
+        console.log(`[Direct] ✅ ${players.length} players from ${url}`);
+        return players;
+      }
+    } catch(e) {
+      console.error(`[Direct] ${url} failed:`, e.message);
+    }
+  }
+  return null;
 }
 
 // ── Build team rankings ───────────────────────────────────────
 function buildRankings(players) {
   const byTeam = {};
   for (const { name, team, runs } of players) {
-    if (!team || !name) continue;
+    if (!team || !name || name.length < 3) continue;
     if (!byTeam[team]) byTeam[team] = {};
     byTeam[team][name] = Math.max(byTeam[team][name] || 0, runs);
   }
+
   const ranked = {};
   for (const [team, batters] of Object.entries(byTeam)) {
     ranked[team] = Object.entries(batters)
       .sort((a, b) => b[1] - a[1])
       .map(([name, runs], i) => ({ rank: i + 1, name, runs }));
   }
+
   const teams = Object.keys(ranked);
-  console.log(`[Scraper] Rankings: ${teams.join(", ")}`);
+  console.log(`[Rankings] ${teams.length} teams: ${teams.join(", ")}`);
+  if (teams.length > 0) {
+    const sample = ranked[teams[0]];
+    console.log(`[Rankings] Sample: ${sample[0]?.name} (${sample[0]?.team || teams[0]}) = ${sample[0]?.runs} runs`);
+  }
   return ranked;
 }
 
-// ── NEVER decrease — keep max of new vs saved ─────────────────
+// ── Never allow runs to decrease ─────────────────────────────
 function enforceNeverDecrease(newRanked) {
   try {
     if (!fs.existsSync(DB_PATH)) return newRanked;
@@ -222,26 +236,29 @@ function enforceNeverDecrease(newRanked) {
         }
       }
     }
+    let fixed = 0;
     for (const [team, slots] of Object.entries(newRanked)) {
       for (const slot of slots) {
         const code = `${team}-${slot.rank}`;
         if ((saved[code] || 0) > slot.runs) {
-          console.log(`[NeverDecrease] ${code}: keeping ${saved[code]} not ${slot.runs}`);
           slot.runs = saved[code];
+          fixed++;
         }
       }
     }
+    if (fixed > 0) console.log(`[NeverDecrease] Protected ${fixed} slots`);
   } catch(e) { /* ignore */ }
   return newRanked;
 }
 
-// ── Fallback: last saved data ─────────────────────────────────
+// ── Fallback: last saved correct data ────────────────────────
 function loadBaseline() {
   try {
     if (!fs.existsSync(DB_PATH)) return null;
     const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8"));
     if (!db.groupA?.length) return null;
-    console.log("[Baseline] Loading last saved scores");
+    console.log("[Baseline] Using last saved scores");
+
     const slotRuns = {};
     for (const group of [db.groupA, db.groupB]) {
       for (const member of group) {
@@ -266,23 +283,22 @@ function loadBaseline() {
 
 // ── Main ──────────────────────────────────────────────────────
 async function getAllIPLData() {
-  console.log("\n[Scraper] Starting IPL 2026 data fetch...");
+  console.log("\n[Scraper] Starting IPL 2026 fetch...");
 
-  // Try each source in order
-  let players = null;
-  players = await scrapeCricTracker();
-  if (!players) players = await scrapeESPN();
-  if (!players) players = await scrapeGoogleIPL();
+  // Try Google first, then direct cricket sites
+  let players = await scrapeGoogle();
+  if (!players || players.length < 5) {
+    players = await scrapeDirectSites();
+  }
 
   if (players && players.length > 5) {
     let ranked = buildRankings(players);
     ranked = enforceNeverDecrease(ranked);
-    console.log("[Scraper] ✅ Live data fetched successfully\n");
+    console.log("[Scraper] ✅ Live data fetched\n");
     return ranked;
   }
 
-  // All sources blocked — use saved data
-  console.log("[Scraper] All sources blocked — using saved baseline\n");
+  console.log("[Scraper] All sources unavailable — using saved baseline\n");
   return loadBaseline() || {};
 }
 
