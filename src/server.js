@@ -30,7 +30,6 @@ app.get("/api/settings", (req, res) => {
   res.json({
     autoSendEnabled: db.autoSendEnabled !== false,
     hasRecipients:   !!(process.env.WHATSAPP_RECIPIENTS),
-    hasCricApiKey:   !!(process.env.CRICAPI_KEY),
   });
 });
 
