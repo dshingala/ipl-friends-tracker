@@ -124,34 +124,12 @@ main{max-width:920px;margin:0 auto;padding:1.5rem 1rem}
 
 <main>
 
-  <!-- SETUP WIZARD — shown when no API key, hidden when configured -->
-  <div class="setup-banner" id="setup-banner">
-    <h2>⚙️ One-Time Setup Required — 2 Minutes</h2>
-    <div class="setup-steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text">
-          Go to <a href="https://cricketdata.org/signup.aspx" target="_blank"><strong>cricketdata.org/signup.aspx</strong></a> and sign up with your email. It's <strong>100% free</strong>, no credit card needed. You'll get an API key instantly.
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text">
-          Go to your <strong>Render dashboard</strong> → click your app → <strong>Environment</strong> tab → click <strong>Add Environment Variable</strong>.<br>
-          Key: <code>CRICAPI_KEY</code> &nbsp; Value: <em>paste your key here</em><br>
-          Click <strong>Save Changes</strong> — Render restarts automatically.
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text">
-          That's it! ✅ After Render restarts, click <strong>Refresh Scores</strong> below. The app will fetch live IPL 2026 batting data, calculate everyone's runs automatically, and send the WhatsApp update — <strong>every match, forever, zero manual work.</strong>
-        </div>
-      </div>
-    </div>
-    <div class="setup-note">
-      ℹ️ cricketdata.org gives 100,000 free API calls per hour — more than enough for the whole IPL season. This is the same data source used by cricket apps worldwide.
-    </div>
+  <!-- Status banner — shows data source info -->
+  <div class="setup-banner done" id="setup-banner">
+    <h2>✅ Fully Automated — No Setup Required</h2>
+    <p style="font-size:13px;color:#86efac;margin-top:6px;line-height:1.7">
+      Scores are fetched directly from the <strong>official IPL website</strong> — the same source your admin reads manually. No API key, no daily limits, always correct. Auto-updates at <strong>11:30 PM IST</strong> after every evening match and <strong>8:00 PM IST</strong> after afternoon matches.
+    </p>
   </div>
 
   <div class="sr">
@@ -302,10 +280,7 @@ async function loadScores(){
     _db=await sr.json();const s=await st.json();
     // Show/hide setup banner
     const banner=document.getElementById("setup-banner");
-    if(s.hasCricApiKey){
-      banner.className="setup-banner done";
-      banner.innerHTML='<h2>✅ Live Data Connected — Fully Automated!</h2><p style="font-size:13px;color:#86efac;margin-top:6px">CricAPI key is active. Scores update automatically after every IPL match. No manual work needed.</p>';
-    }
+    // Banner always shows 'automated' status
     if(_db.lastUpdated){
       const d=new Date(_db.lastUpdated);
       document.getElementById("lu").innerHTML=`Updated<br>${d.toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}`;
